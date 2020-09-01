@@ -6,6 +6,7 @@ IKEA Ansluta MQTT Bridge with Home Assistant discovery
 - [x] WiFi connection
 - [ ] MQTT connection
 - [ ] MQTT configuration
+- [ ] MQTT topics
 - [ ] Home Assistant discovery
 - [ ] Ansluta remote pairing
 - [ ] Send commands to Ansluta remote
