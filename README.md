@@ -1,5 +1,5 @@
 # ikea-ansluta-mqtt-bridge
-IKEA Ansluta MQTT Bridge with Home Assistant discovery using WeMos D1 Mini and CC2500
+IKEA Ansluta MQTT Bridge with Home Assistant discovery using WeMos D1 Mini and CC2500.
 
 # TODO
 - [ ] Project description
@@ -9,4 +9,4 @@ IKEA Ansluta MQTT Bridge with Home Assistant discovery using WeMos D1 Mini and C
 - [ ] MQTT topics
 - [ ] Home Assistant discovery
 - [ ] Ansluta remote pairing
-- [ ] Send commands to Ansluta remote
+- [ ] Send commands as Ansluta remote
