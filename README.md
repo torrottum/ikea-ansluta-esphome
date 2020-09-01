@@ -1,5 +1,5 @@
 # ikea-ansluta-mqtt-bridge
-IKEA Ansluta MQTT Bridge with Home Assistant discovery
+IKEA Ansluta MQTT Bridge with Home Assistant discovery using WeMos D1 Mini and CC2500
 
 # TODO
 - [ ] Project description
