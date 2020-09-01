@@ -1,7 +1,13 @@
 #include <IotWebConf.h>
 #include <IotWebConfCompatibility.h>
 
-const char thingName[] = "Ikea-Ansluta-MQTT-Bridge";
+#ifdef ESP8266
+String ChipId = String(ESP.getChipId(), HEX);
+#elif ESP32
+String ChipId = String((uint32_t)ESP.getEfuseMac(), HEX);
+#endif
+
+String thingName = String("Ikea-Ansluta-MQTT-Bridge-") + ChipId;
 const char wifiInitialApPassword[] = "ikea-ansluta";
 
 #define STATUS_PIN LED_BUILTIN
@@ -9,7 +15,7 @@ const char wifiInitialApPassword[] = "ikea-ansluta";
 DNSServer dnsServer;
 WebServer server(80);
 
-IotWebConf iotWebConf(thingName, &dnsServer, &server, wifiInitialApPassword);
+IotWebConf iotWebConf(thingName.c_str(), &dnsServer, &server, wifiInitialApPassword);
 
 void setup()
 {
