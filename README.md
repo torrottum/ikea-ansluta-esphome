@@ -1,7 +1,7 @@
 # ikea-ansluta-esphome
 IKEA Ansluta integration for Home Assistant using [ESPHome](https://esphome.io) with a D1 Mini and CC2500.
 
-Based upon the work of [@NDBCK](https://github.com/NDBCK/Ansluta-Remote-Controller), [@ksjoberg](https://github.com/ksjoberg/ikea-ansluta-bridge), and [@matlen67](https://github.com/matlen67/ansluta-control).
+Based upon the work of [NDBCK](https://github.com/NDBCK/Ansluta-Remote-Controller), [ksjoberg](https://github.com/ksjoberg/ikea-ansluta-bridge), and [matlen67](https://github.com/matlen67/ansluta-control).
 
 ## Hardware
 - I'm using a [D1 mini](https://docs.wemos.cc/en/latest/d1/d1_mini.html), but should work with other 3.3v boards
