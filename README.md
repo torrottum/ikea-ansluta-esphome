@@ -10,7 +10,6 @@ Based upon the work of [NDBCK](https://github.com/NDBCK/Ansluta-Remote-Controlle
 # TODO
 - [ ] CC2500 component
 - [ ] Light component
-- [ ] Pairing mode (Intercept remote ID from remote, not pairing with transformer)
-- [ ] Intercept commands from paired remote and set state
+- [ ] Intercept commands from remote and set state
 - [ ] Send command as remote
 - [ ] Support both dimming levels? (I just care about 100% myself, but the option for doing 50% would be nice)
