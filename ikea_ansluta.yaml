@@ -2,6 +2,8 @@ esphome:
   name: ikea_ansluta
   platform: ESP8266
   board: d1_mini
+  includes:
+    - ansluta_light.h
 
 wifi:
   ssid: !secret wifi_ssid
@@ -11,6 +13,11 @@ wifi:
     ssid: "Ikea Ansluta Fallback Hotspot"
     password: !secret ap_password
 
+mqtt:
+  broker: !secret mqtt_broker
+  username: !secret mqtt_username
+  password: !secret mqtt_password
+
 captive_portal:
 
 logger:
@@ -18,3 +25,8 @@ logger:
 api:
 
 ota:
+
+custom_component:
+  - lambda: |-
+      auto ansluta = new Ansluta();
+      return {ansluta};
