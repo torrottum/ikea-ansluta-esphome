@@ -8,8 +8,8 @@ Based upon the work of [NDBCK](https://github.com/NDBCK/Ansluta-Remote-Controlle
 - I ended up buying a [CC2500 breakout board](https://www.ebay.co.uk/itm/CC2500-2-4GHz-Module-on-Breakout-Board-with-0-1-Header-Pins-UK-Stock-/262966744730) since it wasn't easy soldering the CC2500 with my shaky hands and subpar soldering skills.
 
 # TODO
-- [ ] CC2500 component
 - [ ] Light component
 - [ ] Intercept commands from remote and set state
 - [ ] Send command as remote
-- [ ] Support both dimming levels? (I just care about 100% myself, but the option for doing 50% would be nice)
+- [ ] Support both dimming levels? (I mostly use 100%, but the option for doing 50% also would be nice)
+- [ ] Use interrupts?
