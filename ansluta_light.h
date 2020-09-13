@@ -13,6 +13,7 @@ class Ansluta : public Component, public CustomMQTTDevice
 {
 private:
   std::string topic_prefix = "ikea_ansluta/light";
+  bool sending = false;
 public:
   void setup() override
   {
@@ -34,6 +35,10 @@ public:
 
   void loop()
   {
+    if (sending) {
+      return;
+    }
+
     sendStrobe(CC2500_SRX);
     writeReg(REG_IOCFG1, 0x01);
     delay(20);
@@ -96,12 +101,12 @@ public:
     char addrA;
     char addrB;
     getRemoteAddressFromTopic(topic, addrA, addrB);
+    publishState(addrA, addrB, payload);
     if (payload == "ON") {
       sendCommand(addrA, addrB, LIGHT_ON_100);
     } else {
       sendCommand(addrA, addrB, LIGHT_OFF);
     }
-    publishState(addrA, addrB, payload);
     ESP_LOGD("ansluta", "Remote address: %x %x", addrA, addrB);
   }
 
@@ -124,7 +129,8 @@ public:
 
   void sendCommand(char AddressByteA, char AddressByteB, char Command)
   {
-    for (byte i = 0; i < 50; i++)
+    sending = true;
+    for (int i = 0; i < 200; i++)
     {
 
       sendStrobe(CC2500_SFTX);  // 0x3B
@@ -163,6 +169,7 @@ public:
 
       delayMicroseconds(1600);
     }
+    sending = false;
   }
 
   void writeReg(char addr, char value)
@@ -170,7 +177,7 @@ public:
     digitalWrite(CS, LOW);
     delayMicroseconds(1); // can't wait for digitalRead(MISO)==HIGH! Don't work in SPI mode
     SPI.transfer(addr);
-    delayMicroseconds(1);
+    delayMicroseconds(200);
     SPI.transfer(value);
     delayMicroseconds(1);
     digitalWrite(CS, HIGH);
