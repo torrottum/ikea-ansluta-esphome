@@ -80,6 +80,21 @@ public:
     digitalWrite(CS, HIGH);
   }
 
+  char readReg(char addr)
+  {
+    addr = addr + 0x80; // set r/w bit (bit7=1 read, bit7=0 write)
+
+    digitalWrite(CS, LOW);
+    delayMicroseconds(1); // can't wait for digitalRead(MISO)==HIGH! Don't work in SPI mode
+    char x = SPI.transfer(addr);
+    delay(10);
+    char y = SPI.transfer(0);
+    delayMicroseconds(1);
+    digitalWrite(CS, HIGH);
+
+    return y;
+  }
+
   void initCC2500()
   {
     writeReg(REG_IOCFG2, VAL_IOCFG2);
