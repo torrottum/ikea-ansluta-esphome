@@ -7,9 +7,12 @@ Based upon the work of [NDBCK](https://github.com/NDBCK/Ansluta-Remote-Controlle
 - I'm using a [D1 mini](https://docs.wemos.cc/en/latest/d1/d1_mini.html), but should work with other 3.3v boards
 - I ended up buying a [CC2500 breakout board](https://www.ebay.co.uk/itm/CC2500-2-4GHz-Module-on-Breakout-Board-with-0-1-Header-Pins-UK-Stock-/262966744730) since it wasn't easy soldering the CC2500 with my shaky hands and subpar soldering skills.
 
-# TODO
-- [ ] Light component
-- [ ] Intercept commands from remote and set state
+## How it works
+When the Asnluta remote is used, a message is published to `ikea_ansluta/light/+/state` where `+` is the address for the remote. The payload is either `ON` (for both 50% and 100% dimming level) or `OFF`.
+
+## TODO
+- [X] Light component (Implemented as MQTT light)
+- [X] Intercept commands from remote and set state
 - [ ] Send command as remote
 - [ ] Support both dimming levels? (I mostly use 100%, but the option for doing 50% also would be nice)
 - [ ] Use interrupts?

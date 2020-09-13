@@ -32,7 +32,46 @@ public:
     subscribe(topic_prefix+"/+/set", &Ansluta::on_set);
   }
 
-  void loop() {
+  void loop()
+  {
+    sendStrobe(CC2500_SRX);
+    writeReg(REG_IOCFG1, 0x01);
+    delay(20);
+    char packetLength = readReg(CC2500_FIFO);
+    char recvPacket[packetLength];
+    if (packetLength <= 8)
+    {
+      for (int i = 1; i <= packetLength; i++)
+      {
+        recvPacket[i] = readReg(CC2500_FIFO);
+      }
+    }
+
+    if (packetLength >= 1)
+    {
+      int start = 0;
+      while ((recvPacket[start] != 0x55) && (start < packetLength))
+      {
+        start++;
+      }
+
+      if (recvPacket[start + 1] == 0x01 && recvPacket[start + 5] == 0xAA)
+      {
+        char addrA = recvPacket[start + 2];
+        char addrB = recvPacket[start + 3];
+        char cmd = recvPacket[start + 4];
+        ESP_LOGD("ansluta",
+                 "Received command %x from remote address: %x %x", cmd, addrA, addrB);
+        if (cmd != Light_OFF) {
+          publishState(addrA, addrB, "ON");
+        } else {
+          publishState(addrA, addrB, "OFF");
+        }
+      }
+
+      sendStrobe(CC2500_SIDLE); // Exit RX / TX
+      sendStrobe(CC2500_SFRX);  // Flush the RX FIFO buffer
+    }
   }
 
   char hexdigit(char hex)
@@ -57,7 +96,15 @@ public:
     char addrA;
     char addrB;
     getRemoteAddressFromTopic(topic, addrA, addrB);
-    ESP_LOGD("ansluta", "Remote address: %#2x %#2x", addrA, addrB);
+    ESP_LOGD("ansluta", "Remote address: %x %x", addrA, addrB);
+  }
+
+  void publishState(char &addrA, char &addrB, std::string payload) {
+    int len = topic_prefix.length() + 12;
+    char topic[len];
+    snprintf(topic, len, "%s/%x%x/state", topic_prefix.c_str(), addrA, addrB);
+    ESP_LOGD("ansluta", "Publishing '%s' to '%s'", payload.c_str(), topic);
+    publish(topic, payload);
   }
 
   void sendStrobe(char strobe)
