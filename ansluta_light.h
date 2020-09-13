@@ -4,7 +4,6 @@
 #include "cc2500_VAL.h"
 #include "cc2500_CMD.h"
 
-#define CS 15
 #define LIGHT_OFF 0x01    // Command to turn the light off
 #define LIGHT_ON_50 0x02  // Command to turn the light on 50%
 #define LIGHT_ON_100 0x03 // Command to turn the light on 100%
@@ -17,13 +16,13 @@ private:
 public:
   void setup() override
   {
-    pinMode(CS, OUTPUT);
+    pinMode(SS, OUTPUT);
 
     SPI.begin();
     SPI.setDataMode(SPI_MODE0);
     SPI.setBitOrder(MSBFIRST);
     SPI.setClockDivider(SPI_CLOCK_DIV64);
-    digitalWrite(CS, HIGH);
+    digitalWrite(SS, HIGH);
 
     sendStrobe(CC2500_SRES); //0x30 SRES Reset chip.
     initCC2500();
@@ -120,10 +119,10 @@ public:
 
   void sendStrobe(char strobe)
   {
-    digitalWrite(CS, LOW);
+    digitalWrite(SS, LOW);
     delayMicroseconds(1);
     SPI.write(strobe);
-    digitalWrite(CS, HIGH);
+    digitalWrite(SS, HIGH);
     delayMicroseconds(2);
   }
 
@@ -136,7 +135,7 @@ public:
       sendStrobe(CC2500_SFTX);  // 0x3B
       sendStrobe(CC2500_SIDLE); // 0x36
 
-      digitalWrite(CS, LOW);
+      digitalWrite(SS, LOW);
       delayMicroseconds(1); // can't wait for digitalRead(MISO)==HIGH! Don't work in SPI mode
 
       SPI.transfer(0x7F); // activate burst data
@@ -163,7 +162,7 @@ public:
       SPI.transfer(0xAA); // ansluta data byte 6
       delayMicroseconds(2);
 
-      digitalWrite(CS, HIGH); // end transfer
+      digitalWrite(SS, HIGH); // end transfer
 
       sendStrobe(CC2500_STX); // 0x35  transmit data in TX
 
@@ -174,26 +173,26 @@ public:
 
   void writeReg(char addr, char value)
   {
-    digitalWrite(CS, LOW);
+    digitalWrite(SS, LOW);
     delayMicroseconds(1); // can't wait for digitalRead(MISO)==HIGH! Don't work in SPI mode
     SPI.transfer(addr);
     delayMicroseconds(200);
     SPI.transfer(value);
     delayMicroseconds(1);
-    digitalWrite(CS, HIGH);
+    digitalWrite(SS, HIGH);
   }
 
   char readReg(char addr)
   {
     addr = addr + 0x80; // set r/w bit (bit7=1 read, bit7=0 write)
 
-    digitalWrite(CS, LOW);
+    digitalWrite(SS, LOW);
     delayMicroseconds(1); // can't wait for digitalRead(MISO)==HIGH! Don't work in SPI mode
     char x = SPI.transfer(addr);
     delay(10);
     char y = SPI.transfer(0);
     delayMicroseconds(1);
-    digitalWrite(CS, HIGH);
+    digitalWrite(SS, HIGH);
 
     return y;
   }
