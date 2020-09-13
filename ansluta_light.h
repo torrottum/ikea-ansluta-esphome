@@ -5,9 +5,9 @@
 #include "cc2500_CMD.h"
 
 #define CS 15
-#define Light_OFF 0x01    // Command to turn the light off
-#define Light_ON_50 0x02  // Command to turn the light on 50%
-#define Light_ON_100 0x03 // Command to turn the light on 100%
+#define LIGHT_OFF 0x01    // Command to turn the light off
+#define LIGHT_ON_50 0x02  // Command to turn the light on 50%
+#define LIGHT_ON_100 0x03 // Command to turn the light on 100%
 
 class Ansluta : public Component, public CustomMQTTDevice
 {
@@ -62,7 +62,7 @@ public:
         char cmd = recvPacket[start + 4];
         ESP_LOGD("ansluta",
                  "Received command %x from remote address: %x %x", cmd, addrA, addrB);
-        if (cmd != Light_OFF) {
+        if (cmd != LIGHT_OFF) {
           publishState(addrA, addrB, "ON");
         } else {
           publishState(addrA, addrB, "OFF");
@@ -96,6 +96,12 @@ public:
     char addrA;
     char addrB;
     getRemoteAddressFromTopic(topic, addrA, addrB);
+    if (payload == "ON") {
+      sendCommand(addrA, addrB, LIGHT_ON_100);
+    } else {
+      sendCommand(addrA, addrB, LIGHT_OFF);
+    }
+    publishState(addrA, addrB, payload);
     ESP_LOGD("ansluta", "Remote address: %x %x", addrA, addrB);
   }
 
@@ -114,6 +120,49 @@ public:
     SPI.write(strobe);
     digitalWrite(CS, HIGH);
     delayMicroseconds(2);
+  }
+
+  void sendCommand(char AddressByteA, char AddressByteB, char Command)
+  {
+    for (byte i = 0; i < 50; i++)
+    {
+
+      sendStrobe(CC2500_SFTX);  // 0x3B
+      sendStrobe(CC2500_SIDLE); // 0x36
+
+      digitalWrite(CS, LOW);
+      delayMicroseconds(1); // can't wait for digitalRead(MISO)==HIGH! Don't work in SPI mode
+
+      SPI.transfer(0x7F); // activate burst data
+      delayMicroseconds(2);
+
+      SPI.transfer(0x06); // send 6 data bytes
+      delayMicroseconds(2);
+
+      SPI.transfer(0x55); // ansluta data byte 1
+      delayMicroseconds(2);
+
+      SPI.transfer(0x01); // ansluta data byte 2
+      delayMicroseconds(2);
+
+      SPI.transfer(AddressByteA); // ansluta data address byte A
+      delayMicroseconds(2);
+
+      SPI.transfer(AddressByteB); // ansluta data address byte B
+      delayMicroseconds(2);
+
+      SPI.transfer(Command); // ansluta data command 0x01=Light OFF 0x02=50% 0x03=100% 0xFF=Pairing
+      delayMicroseconds(2);
+
+      SPI.transfer(0xAA); // ansluta data byte 6
+      delayMicroseconds(2);
+
+      digitalWrite(CS, HIGH); // end transfer
+
+      sendStrobe(CC2500_STX); // 0x35  transmit data in TX
+
+      delayMicroseconds(1600);
+    }
   }
 
   void writeReg(char addr, char value)

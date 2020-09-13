@@ -10,7 +10,9 @@ Based upon the work of [NDBCK](https://github.com/NDBCK/Ansluta-Remote-Controlle
 ## How it works
 When the Asnluta remote is used, a message is published to `ikea_ansluta/light/+/state` where `+` is the address for the remote. The payload is either `ON` (for both 50% and 100% dimming levels) or `OFF`.
 
-### Home Assistant config example
+To turn the lights on/off send `ON` or `OFF` to `ikea_ansluta/light/<address>/set`
+
+### Home Assistant config examplex
 ```yaml
 - platform: mqtt
   name: "Ansluta Light"
@@ -24,6 +26,6 @@ When the Asnluta remote is used, a message is published to `ikea_ansluta/light/+
 ## TODO
 - [X] Light component (Implemented as MQTT light)
 - [X] Intercept commands from remote and set state
-- [ ] Send command as remote
-- [ ] Support both dimming levels? (I mostly use 100%, but the option for doing 50% also would be nice)
+- [X] Send command as remote
+- [ ] Support for sending both dimming levels? (I mostly use 100%, but the option for doing 50% also would be nice)
 - [ ] Use interrupts?
