@@ -7,12 +7,14 @@
 #define LIGHT_OFF 0x01    // Command to turn the light off
 #define LIGHT_ON_50 0x02  // Command to turn the light on 50%
 #define LIGHT_ON_100 0x03 // Command to turn the light on 100%
+#define LIGHT_PAIR 0xFF   // Command to pair with light
 
 class Ansluta : public Component, public CustomMQTTDevice
 {
 private:
   std::string topic_prefix = "ikea_ansluta/light";
   bool sending = false;
+
 public:
   void setup() override
   {
@@ -29,90 +31,110 @@ public:
 
     writeReg(0x3E, 0xFF); //Maximum transmit power - write 0xFF to 0x3E (PATABLE)
 
-    subscribe(topic_prefix+"/+/set", &Ansluta::on_set);
+    subscribe(topic_prefix + "/+/set", &Ansluta::on_set);
+  }
+
+  std::vector<char> readPacket()
+  {
+    sendStrobe(CC2500_SRX);
+    writeReg(REG_IOCFG1, 0x01);
+    delay(20);
+
+    std::vector<char> packet;
+
+    char len = readReg(CC2500_FIFO);
+
+    // I don't know why the packets I get are 6 bytes long. Missing the first
+    // and last byte I've seen in other people's code. But honestly, I have no
+    // idea what I'm doing. Just hacking something together based on the
+    // work of others :-)
+    if (len == 6)
+    {
+      for (int i = 0; i < len; i++)
+      {
+        packet.push_back(readReg(CC2500_FIFO));
+      }
+    }
+
+    sendStrobe(CC2500_SIDLE); // Exit RX / TX
+    sendStrobe(CC2500_SFRX);  // Flush the RX FIFO buffer
+    return packet;
+  }
+
+  bool validCmd(char cmd)
+  {
+    return cmd == LIGHT_ON_50 || cmd == LIGHT_ON_100 || cmd == LIGHT_OFF || cmd == LIGHT_PAIR;
   }
 
   void loop()
   {
-    if (sending) {
+    if (sending)
+    {
       return;
     }
 
-    sendStrobe(CC2500_SRX);
-    writeReg(REG_IOCFG1, 0x01);
-    delay(20);
-    char packetLength = readReg(CC2500_FIFO);
-    char recvPacket[packetLength];
-    if (packetLength <= 8)
+    std::vector<char> packet = readPacket();
+
+    if (packet.size() != 6)
     {
-      for (int i = 1; i <= packetLength; i++)
+      return;
+    }
+
+    // Matches Ansluta packet format: 0x55 0x01 <addrA> <addrB> <command> 0xAA
+    if (packet.front() == 0x55 && packet.at(1) == 0x01 && packet.back() == 0xAA)
+    {
+      short addr = (packet.at(2) << 8) + packet.at(3);
+      char cmd = packet.at(4);
+      if (validCmd(cmd))
       {
-        recvPacket[i] = readReg(CC2500_FIFO);
+        ESP_LOGD("ansluta", "Sniffed command %02x from remote %04x", cmd, addr);
+        on_remote_command(addr, cmd);
       }
     }
 
-    if (packetLength >= 1)
+    // delay to get rid of double commands
+    delay(100);
+  }
+
+  void on_remote_command(short address, char cmd)
+  {
+    if (cmd != LIGHT_OFF)
     {
-      int start = 0;
-      while ((recvPacket[start] != 0x55) && (start < packetLength))
-      {
-        start++;
-      }
-
-      if (recvPacket[start + 1] == 0x01 && recvPacket[start + 5] == 0xAA)
-      {
-        char addrA = recvPacket[start + 2];
-        char addrB = recvPacket[start + 3];
-        char cmd = recvPacket[start + 4];
-        ESP_LOGD("ansluta",
-                 "Received command %x from remote address: %x %x", cmd, addrA, addrB);
-        if (cmd != LIGHT_OFF) {
-          publishState(addrA, addrB, "ON");
-        } else {
-          publishState(addrA, addrB, "OFF");
-        }
-      }
-
-      sendStrobe(CC2500_SIDLE); // Exit RX / TX
-      sendStrobe(CC2500_SFRX);  // Flush the RX FIFO buffer
+      publishState(address, "ON");
+    }
+    else
+    {
+      publishState(address, "OFF");
     }
   }
 
-  char hexdigit(char hex)
+  void getRemoteAddressFromTopic(const std::string &topic, short &address)
   {
-    return (hex <= '9') ? hex - '0' : toupper(hex) - 'A' + 10;
-  }
-
-  char hexbyte(const char *hex)
-  {
-    return (hexdigit(*hex) << 4) | hexdigit(*(hex + 1));
-  }
-
-  void getRemoteAddressFromTopic(const std::string &topic, char &addrA, char &addrB)
-  {
-    addrA = hexbyte(topic.substr(topic_prefix.length()+1, 2).c_str());
-    addrB = hexbyte(topic.substr(topic_prefix.length()+3, 2).c_str());
+    address = (short)strtol(topic.substr(topic_prefix.length() + 1, 4).c_str(), NULL, 16);
   }
 
   void on_set(const std::string &topic, const std::string &payload)
   {
     ESP_LOGD("ansluta", "Topic: '%s', Payload: '%s'", topic.c_str(), payload.c_str());
-    char addrA;
-    char addrB;
-    getRemoteAddressFromTopic(topic, addrA, addrB);
-    publishState(addrA, addrB, payload);
-    if (payload == "ON") {
-      sendCommand(addrA, addrB, LIGHT_ON_100);
-    } else {
-      sendCommand(addrA, addrB, LIGHT_OFF);
+    short address;
+    getRemoteAddressFromTopic(topic, address);
+    publishState(address, payload);
+    if (payload == "ON")
+    {
+      sendCommand(address, LIGHT_ON_100);
     }
-    ESP_LOGD("ansluta", "Remote address: %x %x", addrA, addrB);
+    else
+    {
+      sendCommand(address, LIGHT_OFF);
+    }
+    ESP_LOGD("ansluta", "Remote address: %04x", address);
   }
 
-  void publishState(char &addrA, char &addrB, std::string payload) {
+  void publishState(short address, std::string payload)
+  {
     int len = topic_prefix.length() + 12;
     char topic[len];
-    snprintf(topic, len, "%s/%x%x/state", topic_prefix.c_str(), addrA, addrB);
+    snprintf(topic, len, "%s/%04x/state", topic_prefix.c_str(), address);
     ESP_LOGD("ansluta", "Publishing '%s' to '%s'", payload.c_str(), topic);
     publish(topic, payload);
   }
@@ -126,7 +148,7 @@ public:
     delayMicroseconds(2);
   }
 
-  void sendCommand(char AddressByteA, char AddressByteB, char Command)
+  void sendCommand(short address, char Command)
   {
     sending = true;
     for (int i = 0; i < 200; i++)
@@ -150,10 +172,10 @@ public:
       SPI.transfer(0x01); // ansluta data byte 2
       delayMicroseconds(2);
 
-      SPI.transfer(AddressByteA); // ansluta data address byte A
+      SPI.transfer(address >> 8); // ansluta data address byte A
       delayMicroseconds(2);
 
-      SPI.transfer(AddressByteB); // ansluta data address byte B
+      SPI.transfer(address & 0xFF); // ansluta data address byte B
       delayMicroseconds(2);
 
       SPI.transfer(Command); // ansluta data command 0x01=Light OFF 0x02=50% 0x03=100% 0xFF=Pairing
