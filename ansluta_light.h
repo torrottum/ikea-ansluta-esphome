@@ -34,31 +34,29 @@ public:
     subscribe(topic_prefix + "/+/set", &Ansluta::on_set);
   }
 
-  std::vector<char> readPacket()
+  bool readPacket(char *buffer)
   {
     sendStrobe(CC2500_SRX);
     writeReg(REG_IOCFG1, 0x01);
     delay(20);
-
-    std::vector<char> packet;
 
     char len = readReg(CC2500_FIFO);
 
     // I don't know why the packets I get are 6 bytes long. Missing the first
     // and last byte I've seen in other people's code. But honestly, I have no
     // idea what I'm doing. Just hacking something together based on the
-    // work of others :-)
+    // work of others :-).
     if (len == 6)
     {
-      for (int i = 0; i < len; i++)
+      for (int i = 0; i < 6; i++)
       {
-        packet.push_back(readReg(CC2500_FIFO));
+        buffer[i] = readReg(CC2500_FIFO);
       }
     }
 
     sendStrobe(CC2500_SIDLE); // Exit RX / TX
     sendStrobe(CC2500_SFRX);  // Flush the RX FIFO buffer
-    return packet;
+    return len == 6;
   }
 
   bool validCmd(char cmd)
@@ -73,18 +71,11 @@ public:
       return;
     }
 
-    std::vector<char> packet = readPacket();
-
-    if (packet.size() != 6)
+    char packet[6];
+    if (readPacket(packet) && packet[0] == 0x55 && packet[1] == 0x01 && packet[5] == 0xAA)
     {
-      return;
-    }
-
-    // Matches Ansluta packet format: 0x55 0x01 <addrA> <addrB> <command> 0xAA
-    if (packet.front() == 0x55 && packet.at(1) == 0x01 && packet.back() == 0xAA)
-    {
-      short addr = (packet.at(2) << 8) + packet.at(3);
-      char cmd = packet.at(4);
+      short addr = (packet[2] << 8) + packet[3];
+      char cmd = packet[4];
       if (validCmd(cmd))
       {
         ESP_LOGD("ansluta", "Sniffed command %02x from remote %04x", cmd, addr);
@@ -92,7 +83,6 @@ public:
       }
     }
 
-    // delay to get rid of double commands
     delay(100);
   }
 
