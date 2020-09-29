@@ -1,0 +1,36 @@
+esphome:
+  name: ikea_ansluta_example
+  platform: ESP8266
+  board: d1_mini
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  ap:
+    ssid: "Ikea Ansluta Fallback Hotspot"
+    password: !secret ap_password
+
+captive_portal:
+
+logger:
+
+api:
+
+ota:
+
+spi:
+  clk_pin: GPIO14
+  miso_pin: GPIO12
+  mosi_pin: GPIO13
+
+ikea_ansluta:
+  cs_pin: GPIO15
+
+light:
+  - platform: ikea_ansluta
+    name: 'IKEA Ansluta'
+    remote_address: 0x35c0
+  - platform: ikea_ansluta
+    name: 'IKEA Ansluta 2'
+    remote_address: 0xfefe
