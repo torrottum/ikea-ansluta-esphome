@@ -59,7 +59,7 @@ public:
     char packet[6];
     if (readPacket(packet) && packet[0] == 0x55 && packet[1] == 0x01 && packet[5] == 0xAA)
     {
-      addr = (packet[2] << 8) + packet[3];
+      addr = ((unsigned char) packet[2] << 8) + (unsigned char) packet[3];
       cmd = packet[4];
       if (validCmd(cmd))
       {
@@ -101,10 +101,10 @@ public:
       SPI.transfer(0x01); // ansluta data byte 2
       delayMicroseconds(2);
 
-      SPI.transfer(address >> 8); // ansluta data address byte A
+      SPI.transfer((unsigned short) address >> 8); // ansluta data address byte A
       delayMicroseconds(2);
 
-      SPI.transfer(address & 0xFF); // ansluta data address byte B
+      SPI.transfer((unsigned short) address & 0xFF); // ansluta data address byte B
       delayMicroseconds(2);
 
       SPI.transfer(command); // ansluta data command 0x01=Light OFF 0x02=50% 0x03=100% 0xFF=Pairing
