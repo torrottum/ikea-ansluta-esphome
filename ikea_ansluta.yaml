@@ -6,6 +6,9 @@ esphome:
     - commands.h
     - radio.h
     - ansluta_light.h
+    - cc2500_REG.h
+    - cc2500_VAL.h
+    - cc2500_CMD.h
 
 wifi:
   ssid: !secret wifi_ssid
@@ -28,6 +31,12 @@ logger:
 api:
 
 ota:
+
+globals:
+  - id: my_global_int
+    type: int
+    restore_value: no
+    initial_value: '0'
 
 custom_component:
   - lambda: |-
