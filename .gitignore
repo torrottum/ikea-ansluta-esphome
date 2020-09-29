@@ -1,5 +1,9 @@
 .vscode
 venv
-ikea_ansluta
 .esphome
 secrets.yaml
+!example/secrets.yaml
+test.yaml
+test/
+example/ikea_ansluta_example/
+__pycache__
