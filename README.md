@@ -12,16 +12,16 @@ Based upon the work of [NDBCK](https://github.com/NDBCK/Ansluta-Remote-Controlle
 1. Download the [latest release](https://github.com/torrottum/ikea-ansluta-esphome/releases)
 1. If you don't have it already, create a custom_components directory
 1. Copy `custom_components/ikea_ansluta` into your `custom_components/`
-1. Add the `spi` and `ikea_ansluta` components. For example: (for the pins, you need to know the SPI pins for your esp):
-  ```yaml
-    spi:
-      clk_pin: GPIO14
-      miso_pin: GPIO12
-      mosi_pin: GPIO13
+1. Add the `spi` and `ikea_ansluta` components. For example (for the pins, you need to know the SPI pins for your esp):
+    ```yaml
+      spi:
+        clk_pin: GPIO14
+        miso_pin: GPIO12
+        mosi_pin: GPIO13
 
-    ikea_ansluta:
-      cs_pin: GPIO15
-  ```
+      ikea_ansluta:
+        cs_pin: GPIO15
+    ```
 1. Upload your configuration to your esp
 1. View the logs and press your remote and you'll find the remote address for your light
 1. Add the configuration for your light:
