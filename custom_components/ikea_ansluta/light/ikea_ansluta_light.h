@@ -28,6 +28,9 @@ namespace esphome
       uint16_t remote_address_{};
       optional<uint16_t> address_{};
       light::LightState *state_{nullptr};
+      uint8_t get_command_address() {
+        return this->address_.has_value() ? *this->address_ : this->remote_address_;
+      };
     };
 
   } // namespace ikea_ansluta
