@@ -36,6 +36,8 @@ namespace esphome
     void IkeaAnslutaLight::dump_config()
     {
       ESP_LOGCONFIG(TAG, "Remote ID: %#04x", this->remote_address_);
+      if (address_.has_value())
+        ESP_LOGCONFIG(TAG, "Address: %#04x", *this->address_);
     }
 
     light::LightTraits IkeaAnslutaLight::get_traits()
