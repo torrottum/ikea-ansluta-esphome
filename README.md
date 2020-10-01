@@ -24,17 +24,18 @@ Based upon the work of [NDBCK](https://github.com/NDBCK/Ansluta-Remote-Controlle
     ```
 1. Upload your configuration to your esp
 1. View the logs and press your remote and you'll find the remote address for your light
-1. Add the configuration for your light:
+1. Add the configuration for your light(s):
     ```yaml
       light:
         - platform: ikea_ansluta
           name: 'IKEA Ansluta'
           remote_address: <your address>
     ```
+    **NOTE:** I'm not sure how well this works with multiple remotes/paired to multiple lights. I only have one remote, so I have no way of testing it. 
 1. Upload your configuration again
 1. Your light should now be in Home Assistant
 
-There is an [example here](example/) that you can look at
+There is an [example here](example/) that you can look at.
 
 ## Upgrading from 0.1.x to 1.0.0
 1. Follow the how to use above, step 1-5
