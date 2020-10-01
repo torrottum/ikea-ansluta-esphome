@@ -9,27 +9,8 @@ namespace esphome
 
     void IkeaAnslutaLight::setup() {
       this->radio_->register_listener(this->remote_address_, [this](IkeaAnslutaCommand command) {
-        ESP_LOGD(TAG, "Received command %#04x from radio", command);
-        this->remote_pressed_ = true;
-        auto call = this->state_->make_call();
-        switch (command)
-        {
-        case IkeaAnslutaCommand::ON_50:
-          call.set_brightness(0.5f);
-          call.set_state(true);
-          break;
-        case IkeaAnslutaCommand::ON_100:
-          call.set_brightness(1.0f);
-          call.set_state(true);
-          break;
-        case IkeaAnslutaCommand::OFF:
-          call.set_state(false);
-          break;
-        case IkeaAnslutaCommand::PAIR:
-          return;
-          break;
-        }
-        call.perform();
+        ESP_LOGV(TAG, "Received command %#04x from radio", command);
+        this->handle_remote_command(command);
       });
     }
 
@@ -53,6 +34,47 @@ namespace esphome
       state_->set_default_transition_length(0);
     }
 
+    void IkeaAnslutaLight::handle_remote_command(IkeaAnslutaCommand command)
+    {
+      auto call = this->state_->make_call();
+      switch (command)
+      {
+      case IkeaAnslutaCommand::ON_50:
+        call.set_brightness(0.5f);
+        call.set_state(true);
+        break;
+      case IkeaAnslutaCommand::ON_100:
+        call.set_brightness(1.0f);
+        call.set_state(true);
+        break;
+      case IkeaAnslutaCommand::OFF:
+        call.set_state(false);
+        break;
+      case IkeaAnslutaCommand::PAIR:
+        if (!this->address_.has_value())
+          return;
+
+        ESP_LOGI(TAG, "Waiting 5s before sending pairing commmand ...");
+        // TODO: can this be fixed? I guess the delay messes it up
+        // Maybe pair inside loop() and use millis() to check if time has passed?
+        ESP_LOGI(TAG, "API/MQTT might disconnect");
+        delay(5000);
+        this->send_command(IkeaAnslutaCommand::PAIR);
+        ESP_LOGI(TAG, "Pairing command sent!");
+        return;
+        break;
+      }
+
+      this->remote_pressed_ = true;
+      call.perform();
+    }
+
+    void IkeaAnslutaLight::send_command(IkeaAnslutaCommand command)
+    {
+      auto address = this->address_.has_value() ? *this->address_ : this->remote_address_;
+      this->radio_->send_command(address, command);
+    }
+
     void IkeaAnslutaLight::write_state(light::LightState *state)
     {
       // Do not write state if set from remote
@@ -65,6 +87,7 @@ namespace esphome
       state->current_values_as_brightness(&brightness);
 
       // TODO: make threshold configurable
+      // TODO: refactor to use this->send_command()
       if (brightness > 0 && brightness <= 0.5)
       {
         this->radio_->send_command(this->remote_address_, IkeaAnslutaCommand::ON_50);
