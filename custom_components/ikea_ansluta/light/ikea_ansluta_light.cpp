@@ -7,7 +7,8 @@ namespace esphome
   {
     static const char *TAG = "ikea_ansluta.light";
 
-    void IkeaAnslutaLight::setup() {
+    void IkeaAnslutaLight::setup()
+    {
       this->radio_->register_listener(this->remote_address_, [this](IkeaAnslutaCommand command) {
         ESP_LOGV(TAG, "Received command %#04x from radio", command);
         this->handle_remote_command(command);
@@ -16,9 +17,10 @@ namespace esphome
 
     void IkeaAnslutaLight::dump_config()
     {
-      ESP_LOGCONFIG(TAG, "Remote ID: %#04x", this->remote_address_);
-      if (address_.has_value())
+      ESP_LOGCONFIG(TAG, "Remote address: %#04x", this->remote_address_);
+      if (this->address_.has_value())
         ESP_LOGCONFIG(TAG, "Address: %#04x", *this->address_);
+      ESP_LOGCONFIG(TAG, "Pairing enabled: %s", this->pairing_enabled_ ? "true" : "false");
     }
 
     light::LightTraits IkeaAnslutaLight::get_traits()
@@ -28,7 +30,8 @@ namespace esphome
       return traits;
     }
 
-    void IkeaAnslutaLight::setup_state(light::LightState *state) {
+    void IkeaAnslutaLight::setup_state(light::LightState *state)
+    {
       state_ = state;
       state_->set_gamma_correct(0);
       state_->set_default_transition_length(0);
@@ -51,8 +54,14 @@ namespace esphome
         call.set_state(false);
         break;
       case IkeaAnslutaCommand::PAIR:
-        if (!this->address_.has_value())
+        if (!this->pairing_enabled_)
           return;
+
+        // TODO: Should be possible to validate this in the config?
+        if (!this->address_.has_value()) {
+          ESP_LOGW(TAG, "Pairing mode enabled, but address is not set!");
+          return;
+        }
 
         ESP_LOGI(TAG, "Waiting 5s before sending pairing commmand ...");
         // TODO: can this be fixed? I guess the delay messes it up
@@ -78,7 +87,8 @@ namespace esphome
     void IkeaAnslutaLight::write_state(light::LightState *state)
     {
       // Do not write state if set from remote
-      if (this->remote_pressed_) {
+      if (this->remote_pressed_)
+      {
         this->remote_pressed_ = false;
         return;
       }

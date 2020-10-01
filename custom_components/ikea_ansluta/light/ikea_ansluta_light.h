@@ -15,9 +15,10 @@ namespace esphome
     public:
       void setup() override;
       void dump_config() override;
-      void set_radio(IkeaAnsluta *radio) { this->radio_ = radio; }
-      void set_remote_address(uint16_t address) { this->remote_address_ = address; }
-      void set_address(uint16_t address) { this->address_ = address; }
+      void set_radio(IkeaAnsluta *radio) { this->radio_ = radio; };
+      void set_remote_address(uint16_t address) { this->remote_address_ = address; };
+      void set_address(uint16_t address) { this->address_ = address; };
+      void set_pairing_enabled(bool allow) { this->pairing_enabled_ = allow; };
       light::LightTraits get_traits() override;
       void setup_state(light::LightState *state) override;
       void write_state(light::LightState *state) override;
@@ -27,6 +28,7 @@ namespace esphome
       bool remote_pressed_ = false;
       uint16_t remote_address_{};
       optional<uint16_t> address_{};
+      bool pairing_enabled_{false};
       light::LightState *state_{nullptr};
       void handle_remote_command(IkeaAnslutaCommand command);
       void send_command(IkeaAnslutaCommand command);

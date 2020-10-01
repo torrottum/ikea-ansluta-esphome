@@ -8,6 +8,7 @@ DEPENDENCIES = ['ikea_ansluta']
 
 CONF_REMOTE_ADDRESS = 'remote_address'
 CONF_ADDRESS = 'address';
+CONF_PAIRING_ENABLED = 'pairing_enabled';
 
 IkeaAnslutaLight = ikea_ansluta_ns.class_('IkeaAnslutaLight', light.LightOutput, cg.Component)
 
@@ -16,6 +17,7 @@ CONFIG_SCHEMA = cv.All(light.BRIGHTNESS_ONLY_LIGHT_SCHEMA.extend({
     cv.GenerateID(CONF_ANSLUTA_ID): cv.use_id(IkeaAnsluta),
     cv.Required(CONF_REMOTE_ADDRESS): cv.hex_uint16_t,
     cv.Optional(CONF_ADDRESS): cv.hex_uint16_t,
+    cv.Optional(CONF_PAIRING_ENABLED, default = False): cv.boolean,
 }).extend(cv.COMPONENT_SCHEMA))
 
 def to_code(config):
@@ -25,6 +27,9 @@ def to_code(config):
 
     if CONF_ADDRESS in config:
         cg.add(var.set_address(config[CONF_ADDRESS]))
+
+    if CONF_PAIRING_ENABLED in config:
+        cg.add(var.set_pairing_enabled(config[CONF_PAIRING_ENABLED]))
 
     cg.add(var.set_remote_address(config[CONF_REMOTE_ADDRESS]))
 
