@@ -15,6 +15,20 @@ namespace esphome
       });
     }
 
+    void IkeaAnslutaLight::loop()
+    {
+      if (this->send_pairing_command_at_ == 0)
+        return;
+
+      if (millis() >= this->send_pairing_command_at_)
+      {
+        ESP_LOGI(TAG, "Sending pairing command ...");
+        this->send_command(IkeaAnslutaCommand::PAIR);
+        ESP_LOGI(TAG, "Pairing command sent!");
+        this->send_pairing_command_at_ = 0;
+      }
+    }
+
     void IkeaAnslutaLight::dump_config()
     {
       ESP_LOGCONFIG(TAG, "Remote address: %#04x", this->remote_address_);
@@ -63,15 +77,13 @@ namespace esphome
           return;
         }
 
-        ESP_LOGI(TAG, "Waiting 5s before sending pairing commmand ...");
-        // TODO: can this be fixed? I guess the delay messes it up
-        // Maybe pair inside loop() and use millis() to check if time has passed?
-        ESP_LOGI(TAG, "API/MQTT might disconnect");
-        delay(5000);
-        this->send_command(IkeaAnslutaCommand::PAIR);
-        ESP_LOGI(TAG, "Pairing command sent!");
+        if (this->send_pairing_command_at_ > 0)
+          return;
+
+        ESP_LOGI(TAG, "Waiting ~5s before sending pairing commmand ...");
+        // Command is sent in loop()
+        this->send_pairing_command_at_ = millis() + 5000;
         return;
-        break;
       }
 
       this->remote_pressed_ = true;
