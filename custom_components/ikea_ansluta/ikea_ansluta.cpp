@@ -91,7 +91,8 @@ namespace esphome
     {
       return cmd == IkeaAnslutaCommand::OFF
         || cmd == IkeaAnslutaCommand::ON_50
-        || cmd == IkeaAnslutaCommand::ON_100;
+        || cmd == IkeaAnslutaCommand::ON_100
+        || cmd == IkeaAnslutaCommand::PAIR;
     }
 
     void IkeaAnsluta::register_listener(uint16_t remote_address, const std::function<void(IkeaAnslutaCommand)> &func)
