@@ -109,18 +109,17 @@ namespace esphome
       state->current_values_as_brightness(&brightness);
 
       // TODO: make threshold configurable
-      // TODO: refactor to use this->send_command()
       if (brightness > 0 && brightness <= 0.5)
       {
-        this->radio_->send_command(this->remote_address_, IkeaAnslutaCommand::ON_50);
+        this->send_command(IkeaAnslutaCommand::ON_50);
       }
       else if (brightness > 0.5)
       {
-        this->radio_->send_command(this->remote_address_, IkeaAnslutaCommand::ON_100);
+        this->send_command(IkeaAnslutaCommand::ON_100);
       }
       else
       {
-        this->radio_->send_command(this->remote_address_, IkeaAnslutaCommand::OFF);
+        this->send_command(IkeaAnslutaCommand::OFF);
       }
     }
   } // namespace ikea_ansluta
