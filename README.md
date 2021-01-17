@@ -39,6 +39,19 @@ There is an [example here](example/) that you can look at.
 ### Note about multiple remotes
 I'm not sure how well this works with multiple remotes/paired to multiple lights. I only have one remote, so I have no way of testing it. I think it isn't the best experience since sending commands to the lights are blocking the sniffing of remotes.
 
+### Pairing directly with the lights and using the remote as a toggle switch
+1. To do this, you need to make your own 16 bit address and enable pairing:
+    ```yaml
+      light:
+        - platform: ikea_ansluta
+          name: 'IKEA Ansluta'
+          remote_address: <your remote address>
+          address: <your made up address>
+          pairing_enabled: true
+    ```
+1. Press and hold the remote. This will give you 5 seconds to enable the pairing mode on your light before the ESP sends the pairing command.
+1. You can now disable pairing mode and re-upload your config
+
 ## Upgrading from 0.1.x to 1.0.0
 1. Follow the how to use above, step 1-5
 1. Note the name and entity id and remote address for the old MQTT light in Home Assistant

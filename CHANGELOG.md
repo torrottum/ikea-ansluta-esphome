@@ -1,4 +1,7 @@
 # Changelog
+## 1.1.0
+- Added support for pairing direclty with the lights and using the remote as a toggle switch
+
 ## 1.0.0
 - Implemented as custom esphome component instead
 - Added brightness support
