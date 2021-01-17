@@ -31,11 +31,13 @@ Based upon the work of [NDBCK](https://github.com/NDBCK/Ansluta-Remote-Controlle
           name: 'IKEA Ansluta'
           remote_address: <your address>
     ```
-    **NOTE:** I'm not sure how well this works with multiple remotes/paired to multiple lights. I only have one remote, so I have no way of testing it. 
 1. Upload your configuration again
 1. Your light should now be in Home Assistant
 
 There is an [example here](example/) that you can look at.
+
+### Note about multiple remotes
+I'm not sure how well this works with multiple remotes/paired to multiple lights. I only have one remote, so I have no way of testing it. I think it isn't the best experience since sending commands to the lights are blocking the sniffing of remotes.
 
 ## Upgrading from 0.1.x to 1.0.0
 1. Follow the how to use above, step 1-5
