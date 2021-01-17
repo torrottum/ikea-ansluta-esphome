@@ -86,7 +86,14 @@ namespace esphome
         return;
       }
 
-      this->remote_pressed_ = true;
+      if (!this->address_) {
+        // If we have a paired directly to the light, we don't want to ignore the new state
+        // Maybe rename the remote_pressed_ variable to something more descriptive...
+        this->remote_pressed_ = true;
+      } else {
+        call = this->state_->toggle();
+      }
+
       call.perform();
     }
 
