@@ -31,6 +31,8 @@ light:
   - platform: ikea_ansluta
     name: 'IKEA Ansluta'
     remote_address: 0x35c0
+    # Note: I have no idea how well this works with multiple remotes.
+    # I only have one remote, so I have no way of testing it
   - platform: ikea_ansluta
     name: 'IKEA Ansluta 2'
     remote_address: 0xfefe
