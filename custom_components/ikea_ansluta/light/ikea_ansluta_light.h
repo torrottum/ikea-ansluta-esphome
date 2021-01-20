@@ -32,8 +32,8 @@ namespace esphome
       bool pairing_enabled_{false};
       uint32_t send_pairing_command_at_{0};
       light::LightState *state_{nullptr};
-      void handle_remote_command(IkeaAnslutaCommand command);
-      void send_command(IkeaAnslutaCommand command);
+      void handle_remote_command_(IkeaAnslutaCommand command);
+      void send_command_(IkeaAnslutaCommand command);
     };
 
   } // namespace ikea_ansluta

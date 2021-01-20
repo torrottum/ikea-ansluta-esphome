@@ -8,7 +8,7 @@ DEPENDENCIES = ['spi']
 ikea_ansluta_ns = cg.esphome_ns.namespace('ikea_ansluta')
 IkeaAnsluta = ikea_ansluta_ns.class_('IkeaAnsluta', cg.PollingComponent, spi.SPIDevice)
 
-CONF_ANSLUTA_ID = 'ikea_ansluta_id'
+CONF_IKEA_ANSLUTA_ID = 'ikea_ansluta_id'
 CONFIG_SCHEMA = cv.Schema({
     cv.GenerateID(): cv.declare_id(IkeaAnsluta),
 }).extend(cv.COMPONENT_SCHEMA).extend(spi.spi_device_schema())
