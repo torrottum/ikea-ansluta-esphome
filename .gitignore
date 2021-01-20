@@ -1,3 +1,6 @@
+cmake*
+.idea
+.pio
 .vscode
 venv
 .esphome
@@ -7,3 +10,5 @@ test.yaml
 test/
 example/ikea_ansluta_example/
 __pycache__
+esphome/
+CMake*.txt
