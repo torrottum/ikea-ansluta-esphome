@@ -30,6 +30,8 @@ light::LightTraits IkeaAnslutaLight::get_traits() {
 }
 
 void IkeaAnslutaLight::handle_remote_command_(IkeaAnslutaCommand command) {
+  this->remote_pressed_ = true;
+
   auto call = this->state_->make_call();
   switch (command) {
     case IkeaAnslutaCommand::ON_50:
@@ -47,8 +49,6 @@ void IkeaAnslutaLight::handle_remote_command_(IkeaAnslutaCommand command) {
       // Ignore pairing commands
       break;
   }
-
-  this->remote_pressed_ = true;
   call.perform();
 }
 
