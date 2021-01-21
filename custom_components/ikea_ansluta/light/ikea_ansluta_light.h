@@ -14,7 +14,7 @@ class IkeaAnslutaLight : public Component, public light::LightOutput {
   void dump_config() override;
   void set_parent(IkeaAnsluta *parent) { this->parent_ = parent; };
   void set_address(uint16_t address) { this->address_ = address; };
-  void set_pairing_enabled(bool allow) { this->pairing_enabled_ = allow; };
+  void set_pairing_mode(bool pairing_mode) { this->pairing_mode = pairing_mode; };
   light::LightTraits get_traits() override;
   void setup_state(light::LightState *state) override;
   void write_state(light::LightState *state) override;
@@ -23,7 +23,7 @@ class IkeaAnslutaLight : public Component, public light::LightOutput {
   IkeaAnsluta *parent_;
   bool remote_pressed_ = false;
   uint16_t address_{};
-  bool pairing_enabled_{false};
+  bool pairing_mode{false};
   uint32_t send_pairing_command_at_{0};
   light::LightState *state_{nullptr};
   void handle_remote_command_(IkeaAnslutaCommand command);
