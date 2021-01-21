@@ -62,10 +62,10 @@ void IkeaAnslutaLight::write_state(light::LightState *state) {
   float brightness;
   state->current_values_as_brightness(&brightness);
 
-  // TODO: make threshold configurable
-  if (brightness > 0 && brightness <= 0.5) {
+  float threshold = this->threshold_.value_or(0.5);
+  if (brightness > 0 && brightness <= threshold) {
     this->parent_->send_command(this->address_, IkeaAnslutaCommand::ON_50);
-  } else if (brightness > 0.5) {
+  } else if (brightness > threshold) {
     this->parent_->send_command(this->address_, IkeaAnslutaCommand::ON_100);
   } else {
     this->parent_->send_command(this->address_, IkeaAnslutaCommand::OFF);
@@ -73,7 +73,7 @@ void IkeaAnslutaLight::write_state(light::LightState *state) {
 }
 
 void IkeaAnslutaLight::set_pairing_mode(bool pairing_mode) {
-  ESP_LOGD(TAG, "Pairing mode %s for address %#04x", ONOFF(pairing_mode), this->address_);
+  ESP_LOGI(TAG, "Pairing mode %s for address %#04x", ONOFF(pairing_mode), this->address_);
   if (!pairing_mode) {
     this->cancel_interval("pairing_mode");
     return;
