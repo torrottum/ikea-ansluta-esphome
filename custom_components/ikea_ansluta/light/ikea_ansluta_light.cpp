@@ -14,7 +14,7 @@ void IkeaAnslutaLight::setup() {
 
 void IkeaAnslutaLight::dump_config() {
   ESP_LOGCONFIG(TAG, "  Address: %#04x", this->address_);
-  ESP_LOGCONFIG(TAG, "  Pairing enabled: %s", this->pairing_mode ? "true" : "false");
+  ESP_LOGCONFIG(TAG, "  Pairing enabled: %s", ONOFF(pairing_mode));
 }
 
 void IkeaAnslutaLight::setup_state(light::LightState *state) {
