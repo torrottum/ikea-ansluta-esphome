@@ -23,7 +23,7 @@ class IkeaAnslutaLight : public Component, public light::LightOutput {
 
  protected:
   IkeaAnsluta *parent_;
-  bool remote_pressed_ = false;
+  bool ignore_state_ = false;
   uint16_t address_{};
   bool pairing_mode{false};
   optional<float> threshold_;

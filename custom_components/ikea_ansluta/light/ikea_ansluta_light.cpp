@@ -30,7 +30,8 @@ light::LightTraits IkeaAnslutaLight::get_traits() {
 }
 
 void IkeaAnslutaLight::handle_remote_command_(IkeaAnslutaCommand command) {
-  this->remote_pressed_ = true;
+  // If we get commands from the remote, we don't want to send commands
+  this->ignore_state_ = true;
 
   auto call = this->state_->make_call();
   switch (command) {
@@ -53,9 +54,8 @@ void IkeaAnslutaLight::handle_remote_command_(IkeaAnslutaCommand command) {
 }
 
 void IkeaAnslutaLight::write_state(light::LightState *state) {
-  // Do not write state if set from remote
-  if (this->remote_pressed_) {
-    this->remote_pressed_ = false;
+  if (this->ignore_state_) {
+    this->ignore_state_ = false;
     return;
   }
 
