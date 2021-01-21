@@ -71,5 +71,17 @@ void IkeaAnslutaLight::write_state(light::LightState *state) {
     this->parent_->send_command(this->address_, IkeaAnslutaCommand::OFF);
   }
 }
+
+void IkeaAnslutaLight::set_pairing_mode(bool pairing_mode) {
+  if (!pairing_mode) {
+    this->cancel_interval("pairing_mode");
+    return;
+  }
+
+  this->set_interval("pairing_mode", 5000, [this]() {
+    ESP_LOGI(TAG, "Sending pairing command with address %#04x", this->address_);
+    this->parent_->send_command(this->address_, IkeaAnslutaCommand::PAIR);
+  });
+}
 }  // namespace ikea_ansluta
 }  // namespace esphome
