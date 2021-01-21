@@ -25,7 +25,7 @@ class IkeaAnslutaLight : public Component, public light::LightOutput {
   IkeaAnsluta *parent_;
   bool ignore_state_ = false;
   uint16_t address_{};
-  bool pairing_mode{false};
+  bool pairing_mode_{false};
   optional<float> threshold_;
   light::LightState *state_{nullptr};
   void handle_remote_command_(IkeaAnslutaCommand command);
