@@ -17,16 +17,16 @@ void IkeaAnslutaLight::dump_config() {
   ESP_LOGCONFIG(TAG, "  Pairing enabled: %s", this->pairing_mode ? "true" : "false");
 }
 
-light::LightTraits IkeaAnslutaLight::get_traits() {
-  auto traits = light::LightTraits();
-  traits.set_supports_brightness(true);
-  return traits;
-}
-
 void IkeaAnslutaLight::setup_state(light::LightState *state) {
   state_ = state;
   state_->set_gamma_correct(0);
   state_->set_default_transition_length(0);
+}
+
+light::LightTraits IkeaAnslutaLight::get_traits() {
+  auto traits = light::LightTraits();
+  traits.set_supports_brightness(true);
+  return traits;
 }
 
 void IkeaAnslutaLight::handle_remote_command_(IkeaAnslutaCommand command) {
