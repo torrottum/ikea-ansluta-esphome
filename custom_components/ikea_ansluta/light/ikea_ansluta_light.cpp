@@ -80,8 +80,12 @@ void IkeaAnslutaLight::set_pairing_mode(bool pairing_mode) {
 
   this->set_interval("pairing_mode", 5000, [this]() {
     ESP_LOGI(TAG, "Sending pairing command with address %#04x", this->address_);
-    this->parent_->send_command(this->address_, IkeaAnslutaCommand::PAIR);
+    this->send_pairing_command();
   });
+}
+
+void IkeaAnslutaLight::send_pairing_command() {
+  this->parent_->send_command(this->address_, IkeaAnslutaCommand::PAIR);
 }
 }  // namespace ikea_ansluta
 }  // namespace esphome

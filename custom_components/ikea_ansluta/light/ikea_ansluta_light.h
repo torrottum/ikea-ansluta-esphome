@@ -15,6 +15,7 @@ class IkeaAnslutaLight : public Component, public light::LightOutput {
   void set_parent(IkeaAnsluta *parent) { this->parent_ = parent; };
   void set_address(uint16_t address) { this->address_ = address; };
   void set_pairing_mode(bool pairing_mode);
+  void send_pairing_command();
   light::LightTraits get_traits() override;
   void setup_state(light::LightState *state) override;
   void write_state(light::LightState *state) override;
