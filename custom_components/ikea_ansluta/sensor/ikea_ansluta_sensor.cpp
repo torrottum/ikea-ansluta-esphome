@@ -6,7 +6,7 @@ namespace ikea_ansluta {
 static const char *TAG = "ikea_ansluta.sensor";
 
 void IkeaAnslutaSensor::setup() {
-  this->radio_->register_listener(this->remote_address_, [this](IkeaAnslutaCommand command) {
+  this->parent->register_listener(this->remote_address_, [this](IkeaAnslutaCommand command) {
     this->publish_state((uint8_t) command);
   });
 }

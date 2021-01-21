@@ -11,11 +11,11 @@ class IkeaAnslutaSensor : public sensor::Sensor, public Component {
  public:
   void setup() override;
   void dump_config() override;
-  void set_radio(IkeaAnsluta *radio) { this->radio_ = radio; };
+  void set_parent(IkeaAnsluta *radio) { this->parent = radio; };
   void set_remote_address(uint16_t address) { this->remote_address_ = address; };
 
  protected:
-  IkeaAnsluta *radio_;
+  IkeaAnsluta *parent;
   bool remote_pressed_ = false;
   uint16_t remote_address_{};
 };

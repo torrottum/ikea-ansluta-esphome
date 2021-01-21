@@ -31,4 +31,4 @@ def to_code(config):
         cg.add(var.set_pairing_enabled(config[CONF_PAIRING_ENABLED]))
 
     paren = yield cg.get_variable(config[CONF_IKEA_ANSLUTA_ID])
-    cg.add(var.set_radio(paren))
+    cg.add(var.set_parent(paren))

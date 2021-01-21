@@ -12,7 +12,7 @@ class IkeaAnslutaLight : public Component, public light::LightOutput {
  public:
   void setup() override;
   void dump_config() override;
-  void set_radio(IkeaAnsluta *radio) { this->radio_ = radio; };
+  void set_parent(IkeaAnsluta *parent) { this->parent_ = parent; };
   void set_address(uint16_t address) { this->address_ = address; };
   void set_pairing_enabled(bool allow) { this->pairing_enabled_ = allow; };
   light::LightTraits get_traits() override;
@@ -20,7 +20,7 @@ class IkeaAnslutaLight : public Component, public light::LightOutput {
   void write_state(light::LightState *state) override;
 
  protected:
-  IkeaAnsluta *radio_;
+  IkeaAnsluta *parent_;
   bool remote_pressed_ = false;
   uint16_t address_{};
   bool pairing_enabled_{false};

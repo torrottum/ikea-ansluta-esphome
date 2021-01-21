@@ -6,7 +6,7 @@ namespace ikea_ansluta {
 static const char *TAG = "ikea_ansluta.light";
 
 void IkeaAnslutaLight::setup() {
-  this->radio_->register_listener(this->address_, [this](IkeaAnslutaCommand command) {
+  this->parent_->register_listener(this->address_, [this](IkeaAnslutaCommand command) {
     ESP_LOGV(TAG, "Received command %#04x from radio", (uint8_t) command);
     this->handle_remote_command_(command);
   });
@@ -64,11 +64,11 @@ void IkeaAnslutaLight::write_state(light::LightState *state) {
 
   // TODO: make threshold configurable
   if (brightness > 0 && brightness <= 0.5) {
-    this->radio_->send_command(this->address_, IkeaAnslutaCommand::ON_50);
+    this->parent_->send_command(this->address_, IkeaAnslutaCommand::ON_50);
   } else if (brightness > 0.5) {
-    this->radio_->send_command(this->address_, IkeaAnslutaCommand::ON_100);
+    this->parent_->send_command(this->address_, IkeaAnslutaCommand::ON_100);
   } else {
-    this->radio_->send_command(this->address_, IkeaAnslutaCommand::OFF);
+    this->parent_->send_command(this->address_, IkeaAnslutaCommand::OFF);
   }
 }
 }  // namespace ikea_ansluta

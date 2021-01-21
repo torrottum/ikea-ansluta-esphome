@@ -25,4 +25,4 @@ def to_code(config):
     cg.add(var.set_remote_address(config[CONF_REMOTE_ADDRESS]))
 
     paren = yield cg.get_variable(config[CONF_IKEA_ANSLUTA_ID])
-    cg.add(var.set_radio(paren))
+    cg.add(var.set_parent(paren))
