@@ -6,7 +6,7 @@ from esphome.components import spi
 DEPENDENCIES = ['spi']
 
 ikea_ansluta_ns = cg.esphome_ns.namespace('ikea_ansluta')
-IkeaAnsluta = ikea_ansluta_ns.class_('IkeaAnsluta', cg.PollingComponent, spi.SPIDevice)
+IkeaAnsluta = ikea_ansluta_ns.class_('IkeaAnsluta', cg.Component, spi.SPIDevice)
 
 CONF_IKEA_ANSLUTA_ID = 'ikea_ansluta_id'
 CONFIG_SCHEMA = cv.Schema({

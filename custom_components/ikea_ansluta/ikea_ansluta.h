@@ -17,13 +17,12 @@ struct IkeaAnslutaListener {
   std::function<void(IkeaAnslutaCommand)> on_command;
 };
 
-class IkeaAnsluta : public PollingComponent,
+class IkeaAnsluta : public Component,
                     public spi::SPIDevice<spi::BIT_ORDER_MSB_FIRST, spi::CLOCK_POLARITY_LOW, spi::CLOCK_PHASE_LEADING,
                                           spi::DATA_RATE_4MHZ> {
  public:
-  IkeaAnsluta();
   void setup() override;
-  void update() override;
+  void loop() override;
   void dump_config() override;
   void send_command(uint16_t addr, IkeaAnslutaCommand command);
   void register_listener(uint16_t remote_address, const std::function<void(IkeaAnslutaCommand)> &func);

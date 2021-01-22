@@ -6,8 +6,6 @@ namespace esphome {
 namespace ikea_ansluta {
 static const char *TAG = "ikea_ansluta";
 
-IkeaAnsluta::IkeaAnsluta() : PollingComponent(100) {};
-
 void IkeaAnsluta::setup() {
   this->spi_setup();
   this->enable();
@@ -57,7 +55,7 @@ void IkeaAnsluta::setup() {
 
 void IkeaAnsluta::dump_config() { LOG_PIN("  CS Pin: ", this->cs_); }
 
-void IkeaAnsluta::update() {
+void IkeaAnsluta::loop() {
   this->enable();
   auto packet = this->read_packet_();
   if (this->valid_packet_(packet)) {
