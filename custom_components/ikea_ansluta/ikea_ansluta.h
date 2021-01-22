@@ -35,6 +35,7 @@ class IkeaAnsluta : public Component,
   void set_send_command_n_times(uint16_t n_times) { this->send_command_n_times_ = n_times; }
 
  protected:
+  void sniff_();
   void send_strobe_(uint8_t strobe);
   void write_reg_(uint8_t addr, uint8_t value);
   uint8_t read_reg_(uint8_t addr);

@@ -57,6 +57,22 @@ void IkeaAnsluta::dump_config() { LOG_PIN("  CS Pin: ", this->cs_); }
 
 void IkeaAnsluta::loop() {
   this->enable();
+  this->sniff_();
+
+  for (auto it = this->commands_to_send_.begin(); it != this->commands_to_send_.end();) {
+    this->send_command_(it->first, it->second.command);
+    it->second.times_sent++;
+    if (it->second.times_sent == this->send_command_n_times_.value_or(50)) {
+      ESP_LOGD(TAG, "Done sending command %#02x to address %#04x", it->second.command, it->first);
+      it = this->commands_to_send_.erase(it);
+    } else {
+      ++it;
+    }
+  }
+  this->disable();
+}
+
+void IkeaAnsluta::sniff_() {
   auto packet = this->read_packet_();
   if (this->valid_packet_(packet)) {
     uint16_t address = (packet[2] << 8) + packet[3];
@@ -66,19 +82,6 @@ void IkeaAnsluta::loop() {
       if (listener.remote_address == address)
         listener.on_command(command);
   }
-
-  for (auto it = this->commands_to_send_.begin(); it != this->commands_to_send_.end();) {
-    this->send_command_(it->first, it->second.command);
-    it->second.times_sent++;
-    // TODO: make times to send configurable.
-    if (it->second.times_sent == this->send_command_n_times_.value_or(50)) {
-      ESP_LOGD(TAG, "Done sending command %#02x to address %#04x", it->second.command, it->first);
-      it = this->commands_to_send_.erase(it);
-    } else {
-      ++it;
-    }
-  }
-  this->disable();
 }
 
 bool IkeaAnsluta::valid_packet_(std::vector<uint8_t> packet) {
@@ -152,9 +155,9 @@ uint8_t IkeaAnsluta::read_reg_(uint8_t addr) {
 void IkeaAnsluta::queue_command(uint16_t address, IkeaAnslutaCommand command) {
   if (!this->commands_to_send_.count(address)) {
     auto pair = std::make_pair(address, IkeaAnslutaCommandState{
-        .command = command,
-        .times_sent = 0,
-    });
+                                            .command = command,
+                                            .times_sent = 0,
+                                        });
 
     this->commands_to_send_.insert(pair);
     return;
