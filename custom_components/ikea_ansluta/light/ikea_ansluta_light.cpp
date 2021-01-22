@@ -64,11 +64,11 @@ void IkeaAnslutaLight::write_state(light::LightState *state) {
 
   float threshold = this->threshold_.value_or(0.5);
   if (brightness > 0 && brightness <= threshold) {
-    this->parent_->send_command(this->address_, IkeaAnslutaCommand::ON_50);
+    this->parent_->queue_command(this->address_, IkeaAnslutaCommand::ON_50);
   } else if (brightness > threshold) {
-    this->parent_->send_command(this->address_, IkeaAnslutaCommand::ON_100);
+    this->parent_->queue_command(this->address_, IkeaAnslutaCommand::ON_100);
   } else {
-    this->parent_->send_command(this->address_, IkeaAnslutaCommand::OFF);
+    this->parent_->queue_command(this->address_, IkeaAnslutaCommand::OFF);
   }
 }
 
@@ -85,7 +85,7 @@ void IkeaAnslutaLight::set_pairing_mode(bool pairing_mode) {
 
 void IkeaAnslutaLight::send_pairing_command() {
   ESP_LOGI(TAG, "Sending pairing command with address %#04x", this->address_);
-  this->parent_->send_command(this->address_, IkeaAnslutaCommand::PAIR);
+  this->parent_->queue_command(this->address_, IkeaAnslutaCommand::PAIR);
 }
 }  // namespace ikea_ansluta
 }  // namespace esphome

@@ -66,6 +66,18 @@ void IkeaAnsluta::loop() {
       if (listener.remote_address == address)
         listener.on_command(command);
   }
+
+  for (auto it = this->commands_to_send_.begin(); it != this->commands_to_send_.end();) {
+    this->send_command_(it->first, it->second.command);
+    it->second.times_sent++;
+    // TODO: make times to send configurable.
+    if (it->second.times_sent == this->send_command_n_times_.value_or(50)) {
+      ESP_LOGD(TAG, "Done sending command %#02x to address %#04x", it->second.command, it->first);
+      it = this->commands_to_send_.erase(it);
+    } else {
+      ++it;
+    }
+  }
   this->disable();
 }
 
@@ -137,27 +149,41 @@ uint8_t IkeaAnsluta::read_reg_(uint8_t addr) {
   return y;
 }
 
-void IkeaAnsluta::send_command(uint16_t address, IkeaAnslutaCommand command) {
-  for (int i = 0; i < 200; i++) {
-    this->enable();
-    this->send_strobe_(CC2500_SFTX);   // 0x3B
-    this->send_strobe_(CC2500_SIDLE);  // 0x36
-    this->cs_->digital_write(false);
-    delayMicroseconds(1);
-    this->write_byte(0x7F);
-    this->write_byte(0x06);
-    this->write_byte(0x55);
-    this->write_byte(0x01);
-    this->write_byte((uint8_t)(address >> 8));
-    this->write_byte((uint8_t)(address & 0xFF));
-    this->write_byte((uint8_t) command);
-    this->write_byte(0xAA);
-    this->write_byte(0xFF);
-    this->cs_->digital_write(true);
-    this->send_strobe_(CC2500_STX);
-    delayMicroseconds(10);
+void IkeaAnsluta::queue_command(uint16_t address, IkeaAnslutaCommand command) {
+  if (!this->commands_to_send_.count(address)) {
+    auto pair = std::make_pair(address, IkeaAnslutaCommandState{
+        .command = command,
+        .times_sent = 0,
+    });
+
+    this->commands_to_send_.insert(pair);
+    return;
   }
-  this->disable();
+
+  if (this->commands_to_send_[address].command != command) {
+    this->commands_to_send_[address].command = command;
+    this->commands_to_send_[address].times_sent = 0;
+  }
 }
+
+void IkeaAnsluta::send_command_(uint16_t address, IkeaAnslutaCommand command) {
+  this->send_strobe_(CC2500_SFTX);   // 0x3B
+  this->send_strobe_(CC2500_SIDLE);  // 0x36
+  this->cs_->digital_write(false);
+  delayMicroseconds(1);
+  this->write_byte(0x7F);
+  this->write_byte(0x06);
+  this->write_byte(0x55);
+  this->write_byte(0x01);
+  this->write_byte((uint8_t)(address >> 8));
+  this->write_byte((uint8_t)(address & 0xFF));
+  this->write_byte((uint8_t) command);
+  this->write_byte(0xAA);
+  this->write_byte(0xFF);
+  this->cs_->digital_write(true);
+  this->send_strobe_(CC2500_STX);
+  delayMicroseconds(10);
+}
+
 }  // namespace ikea_ansluta
 }  // namespace esphome
