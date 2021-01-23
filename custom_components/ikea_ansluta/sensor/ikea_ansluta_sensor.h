@@ -11,13 +11,13 @@ class IkeaAnslutaSensor : public sensor::Sensor, public Component {
  public:
   void setup() override;
   void dump_config() override;
-  void set_parent(IkeaAnsluta *radio) { this->parent = radio; };
-  void set_remote_address(uint16_t address) { this->remote_address_ = address; };
+  void set_parent(IkeaAnsluta *radio) { this->parent_ = radio; };
+  void set_address(uint16_t address) { this->address_ = address; };
 
  protected:
-  IkeaAnsluta *parent;
+  IkeaAnsluta *parent_;
   bool remote_pressed_ = false;
-  uint16_t remote_address_{};
+  uint16_t address_{};
 };
 }  // namespace ikea_ansluta
 }  // namespace esphome

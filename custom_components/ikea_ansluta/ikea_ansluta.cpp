@@ -61,7 +61,7 @@ void IkeaAnsluta::loop() {
   // not sending commands or for every n command sent
   if (this->commands_to_send_.empty()) {
     this->sniff_();
-  } else if (this->commands_sent_ % this->sniff_after_num_commands_sent.value_or(5) == 0) {
+  } else if (this->commands_sent_ % this->sniff_after_commands_sent_.value_or(5) == 0) {
     this->sniff_();
     this->commands_sent_ = 0;
   }
@@ -70,8 +70,8 @@ void IkeaAnsluta::loop() {
     this->send_command_(it->first, it->second.command);
     it->second.times_sent++;
     this->commands_sent_++;
-    if (it->second.times_sent == this->send_command_num_times.value_or(50)) {
-      ESP_LOGD(TAG, "Done sending command %#02x to address %#04x", it->second.command, it->first);
+    if (it->second.times_sent == this->send_command_times_.value_or(50)) {
+      ESP_LOGD(TAG, "Done sending command %#04x to address %#04x", (uint8_t) it->second.command, it->first);
       it = this->commands_to_send_.erase(it);
     } else {
       ++it;

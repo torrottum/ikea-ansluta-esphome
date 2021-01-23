@@ -1,13 +1,11 @@
 from esphome.components import light
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.const import CONF_OUTPUT_ID, CONF_THRESHOLD
+from esphome.const import CONF_OUTPUT_ID, CONF_THRESHOLD, CONF_ADDRESS
 from .. import ikea_ansluta_ns, CONF_IKEA_ANSLUTA_ID, IkeaAnsluta
 
 DEPENDENCIES = ['ikea_ansluta']
 
-CONF_REMOTE_ADDRESS = 'remote_address'
-CONF_ADDRESS = 'address'
 CONF_PAIRING_MODE = 'pairing_mode'
 
 IkeaAnslutaLight = ikea_ansluta_ns.class_('IkeaAnslutaLight', light.LightOutput, cg.Component)

@@ -32,8 +32,8 @@ class IkeaAnsluta : public Component,
   void dump_config() override;
   void queue_command(uint16_t addr, IkeaAnslutaCommand command);
   void register_listener(uint16_t remote_address, const std::function<void(IkeaAnslutaCommand)> &func);
-  void set_send_command_num_times(uint16_t n_times) { this->send_command_num_times = n_times; }
-  void set_sniff_after_num_commands_sent(uint16_t n) { this->sniff_after_num_commands_sent = n; }
+  void set_send_command_times(uint16_t n_times) { this->send_command_times_ = n_times; }
+  void set_sniff_after_commands_sent(uint16_t n) { this->sniff_after_commands_sent_ = n; }
 
  protected:
   void sniff_();
@@ -43,8 +43,8 @@ class IkeaAnsluta : public Component,
   std::vector<uint8_t> read_packet_();
   bool valid_packet_(std::vector<uint8_t>);
   bool valid_cmd_(IkeaAnslutaCommand cmd);
-  optional<uint16_t> send_command_num_times;
-  optional<uint16_t> sniff_after_num_commands_sent;
+  optional<uint16_t> send_command_times_;
+  optional<uint16_t> sniff_after_commands_sent_;
   uint16_t commands_sent_;
   std::vector<IkeaAnslutaListener> listeners_;
   std::unordered_map<uint16_t, IkeaAnslutaCommandState> commands_to_send_{};

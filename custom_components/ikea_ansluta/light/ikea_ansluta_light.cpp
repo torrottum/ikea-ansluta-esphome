@@ -78,9 +78,7 @@ void IkeaAnslutaLight::set_pairing_mode(bool pairing_mode) {
     this->cancel_interval("pairing_mode_");
     return;
   }
-  this->set_interval("pairing_mode_", 5000, [this]() {
-    this->send_pairing_command();
-  });
+  this->set_interval("pairing_mode_", 5000, [this]() { this->send_pairing_command(); });
 }
 
 void IkeaAnslutaLight::send_pairing_command() {
