@@ -87,6 +87,7 @@ void IkeaAnsluta::sniff_() {
     uint16_t address = (packet[2] << 8) + packet[3];
     IkeaAnslutaCommand command = (IkeaAnslutaCommand) packet[4];
     ESP_LOGD(TAG, "Sniffed command %#02x from remote %#04x", (uint8_t) command, address);
+    this->on_remote_click_callback_.call(address, (uint8_t) command);
     for (auto &listener : this->listeners_)
       if (listener.remote_address == address)
         listener.on_command(command);
@@ -109,6 +110,10 @@ void IkeaAnsluta::register_listener(uint16_t remote_address, const std::function
       .on_command = func,
   };
   this->listeners_.push_back(listener);
+}
+
+void IkeaAnsluta::add_new_on_remote_click_callback(std::function<void(uint16_t, uint8_t)> &&remote_pressed_callback) {
+  this->on_remote_click_callback_.add(std::move(remote_pressed_callback));
 }
 
 void IkeaAnsluta::read_packet_(std::vector<uint8_t> &buffer) {

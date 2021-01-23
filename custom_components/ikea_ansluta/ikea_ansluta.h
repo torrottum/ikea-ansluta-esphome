@@ -1,5 +1,6 @@
 #pragma once
 
+#include "esphome/core/automation.h"
 #include "esphome/core/component.h"
 #include "esphome/components/spi/spi.h"
 #include "unordered_map"
@@ -34,6 +35,7 @@ class IkeaAnsluta : public Component,
   void register_listener(uint16_t remote_address, const std::function<void(IkeaAnslutaCommand)> &func);
   void set_send_command_times(uint16_t n_times) { this->send_command_times_ = n_times; }
   void set_sniff_after_commands_sent(uint16_t n) { this->sniff_after_commands_sent_ = n; }
+  void add_new_on_remote_click_callback(std::function<void(uint16_t, uint8_t)> &&remote_pressed_callback);
 
  protected:
   void sniff_();
@@ -49,6 +51,15 @@ class IkeaAnsluta : public Component,
   std::vector<IkeaAnslutaListener> listeners_;
   std::unordered_map<uint16_t, IkeaAnslutaCommandState> commands_to_send_{};
   void send_command_(uint16_t address, IkeaAnslutaCommand command);
+  CallbackManager<void(uint16_t, uint8_t)> on_remote_click_callback_{};
+};
+
+class IkeaAnslutaOnRemoteClickTrigger : public Trigger<uint16_t, uint8_t> {
+ public:
+  IkeaAnslutaOnRemoteClickTrigger(IkeaAnsluta *parent) {
+    parent->add_new_on_remote_click_callback(
+        [this](uint16_t address, uint8_t command) { this->trigger(address, command); });
+  }
 };
 }  // namespace ikea_ansluta
 }  // namespace esphome

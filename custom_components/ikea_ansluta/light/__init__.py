@@ -23,7 +23,6 @@ CONFIG_SCHEMA = cv.All(light.BRIGHTNESS_ONLY_LIGHT_SCHEMA.extend({
     cv.Optional(CONF_ON_CHANGE): auto.validate_automation({
         cv.GenerateID(CONF_TRIGGER_ID): cv.declare_id(LightOnChangeTrigger),
     }),
-
 }).extend(cv.COMPONENT_SCHEMA))
 
 
