@@ -17,6 +17,8 @@ class IkeaAnslutaLight : public Component, public light::LightOutput {
   void set_pairing_mode(bool pairing_mode);
   void set_threshold(float threshold) { this->threshold_ = threshold; };
   void send_pairing_command();
+  void send_command(IkeaAnslutaCommand command);
+  void send_command(float command);
   light::LightTraits get_traits() override;
   void setup_state(light::LightState *state) override;
   void write_state(light::LightState *state) override;
