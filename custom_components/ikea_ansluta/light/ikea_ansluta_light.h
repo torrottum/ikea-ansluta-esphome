@@ -1,6 +1,8 @@
 #pragma once
 
+#include "esphome/core/automation.h"
 #include "esphome/core/component.h"
+#include "esphome/components/light/light_traits.h"
 #include "esphome/components/ikea_ansluta/ikea_ansluta.h"
 #include "esphome/components/light/light_output.h"
 #include "esphome/core/helpers.h"
@@ -12,6 +14,9 @@ class IkeaAnslutaLight : public Component, public light::LightOutput {
  public:
   void setup() override;
   void dump_config() override;
+  void setup_state(light::LightState *state) override;
+  void write_state(light::LightState *state) override;
+  light::LightTraits get_traits() override;
   void set_parent(IkeaAnsluta *parent) { this->parent_ = parent; };
   void set_address(uint16_t address) { this->address_ = address; };
   void set_pairing_mode(bool pairing_mode);
@@ -19,9 +24,7 @@ class IkeaAnslutaLight : public Component, public light::LightOutput {
   void send_pairing_command();
   void send_command(IkeaAnslutaCommand command);
   void send_command(float command);
-  light::LightTraits get_traits() override;
-  void setup_state(light::LightState *state) override;
-  void write_state(light::LightState *state) override;
+  void add_new_on_change_callback(std::function<void(uint8_t)> &&change_callback);
 
  protected:
   IkeaAnsluta *parent_;
@@ -31,6 +34,14 @@ class IkeaAnslutaLight : public Component, public light::LightOutput {
   optional<float> threshold_;
   light::LightState *state_{nullptr};
   void handle_remote_command_(IkeaAnslutaCommand command);
+  CallbackManager<void(uint8_t)> on_change_callback_{};
+};
+
+class IkeaAnslutaLightOnChangeTrigger : public Trigger<uint8_t> {
+ public:
+  IkeaAnslutaLightOnChangeTrigger(IkeaAnslutaLight *parent) {
+    parent->add_new_on_change_callback([this](uint8_t command) { this->trigger(command); });
+  }
 };
 
 }  // namespace ikea_ansluta

@@ -33,6 +33,8 @@ void IkeaAnslutaLight::handle_remote_command_(IkeaAnslutaCommand command) {
   // If we get commands from the remote, we don't want to send commands
   this->ignore_state_ = true;
 
+  this->on_change_callback_.call((uint8_t) command);
+
   auto call = this->state_->make_call();
   switch (command) {
     case IkeaAnslutaCommand::ON_50:
@@ -63,13 +65,17 @@ void IkeaAnslutaLight::write_state(light::LightState *state) {
   state->current_values_as_brightness(&brightness);
 
   float threshold = this->threshold_.value_or(0.5);
+  IkeaAnslutaCommand command;
   if (brightness > 0 && brightness <= threshold) {
-    this->parent_->queue_command(this->address_, IkeaAnslutaCommand::ON_50);
+    command = IkeaAnslutaCommand::ON_50;
   } else if (brightness > threshold) {
-    this->parent_->queue_command(this->address_, IkeaAnslutaCommand::ON_100);
+    command = IkeaAnslutaCommand::ON_100;
   } else {
-    this->parent_->queue_command(this->address_, IkeaAnslutaCommand::OFF);
+    command = IkeaAnslutaCommand::OFF;
   }
+  this->parent_->queue_command(this->address_, command);
+
+  this->on_change_callback_.call((uint8_t) command);
 }
 
 void IkeaAnslutaLight::set_pairing_mode(bool pairing_mode) {
@@ -86,13 +92,14 @@ void IkeaAnslutaLight::send_pairing_command() {
   this->send_command(IkeaAnslutaCommand::PAIR);
 }
 
-void IkeaAnslutaLight::send_command(float command) {
-  this->send_command((IkeaAnslutaCommand) ((uint8_t) command));
-}
+void IkeaAnslutaLight::send_command(float command) { this->send_command((IkeaAnslutaCommand)((uint8_t) command)); }
 
 void IkeaAnslutaLight::send_command(IkeaAnslutaCommand command) {
   this->parent_->queue_command(this->address_, command);
 }
 
+void IkeaAnslutaLight::add_new_on_change_callback(std::function<void(uint8_t)> &&change_callback) {
+  this->on_change_callback_.add(std::move(change_callback));
+}
 }  // namespace ikea_ansluta
 }  // namespace esphome
