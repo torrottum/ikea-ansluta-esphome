@@ -81,7 +81,8 @@ void IkeaAnsluta::loop() {
 }
 
 void IkeaAnsluta::sniff_() {
-  auto packet = this->read_packet_();
+  std::vector<uint8_t> packet;
+  this->read_packet_(packet);
   if (this->valid_packet_(packet)) {
     uint16_t address = (packet[2] << 8) + packet[3];
     IkeaAnslutaCommand command = (IkeaAnslutaCommand) packet[4];
@@ -92,7 +93,7 @@ void IkeaAnsluta::sniff_() {
   }
 }
 
-bool IkeaAnsluta::valid_packet_(std::vector<uint8_t> packet) {
+bool IkeaAnsluta::valid_packet_(const std::vector<uint8_t> &packet) {
   return packet.size() == 6 && packet.front() == 0x55 && packet.at(1) == 0x01 &&
          this->valid_cmd_((IkeaAnslutaCommand) packet.at(4)) && packet.back() == 0xAA;
 }
@@ -110,14 +111,12 @@ void IkeaAnsluta::register_listener(uint16_t remote_address, const std::function
   this->listeners_.push_back(listener);
 }
 
-std::vector<uint8_t> IkeaAnsluta::read_packet_() {
+void IkeaAnsluta::read_packet_(std::vector<uint8_t> &buffer) {
   this->send_strobe_(CC2500_SRX);
   this->write_reg_(REG_IOCFG1, 0x01);
   delay(20);
 
   uint8_t len = this->read_reg_(CC2500_FIFO);
-
-  std::vector<uint8_t> buffer;
 
   if (len == 6) {
     for (int i = 0; i < 6; i++) {
@@ -127,7 +126,6 @@ std::vector<uint8_t> IkeaAnsluta::read_packet_() {
 
   this->send_strobe_(CC2500_SIDLE);
   this->send_strobe_(CC2500_SFRX);
-  return buffer;
 }
 
 void IkeaAnsluta::send_strobe_(uint8_t strobe) {

@@ -40,8 +40,8 @@ class IkeaAnsluta : public Component,
   void send_strobe_(uint8_t strobe);
   void write_reg_(uint8_t addr, uint8_t value);
   uint8_t read_reg_(uint8_t addr);
-  std::vector<uint8_t> read_packet_();
-  bool valid_packet_(std::vector<uint8_t>);
+  void read_packet_(std::vector<uint8_t> &buffer);
+  bool valid_packet_(const std::vector<uint8_t> &packet);
   bool valid_cmd_(IkeaAnslutaCommand cmd);
   optional<uint16_t> send_command_times_;
   optional<uint16_t> sniff_after_commands_sent_;
