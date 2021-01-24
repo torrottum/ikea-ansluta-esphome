@@ -10,12 +10,12 @@ DEPENDENCIES = ['ikea_ansluta']
 CONF_PAIRING_MODE = 'pairing_mode'
 CONF_ON_CHANGE = 'on_change'
 
-IkeaAnslutaLight = ikea_ansluta_ns.class_('IkeaAnslutaLight', light.LightOutput, cg.Component)
-LightOnChangeTrigger = ikea_ansluta_ns.class_('IkeaAnslutaLightOnChangeTrigger',
+LightOutput = ikea_ansluta_ns.class_('Light', light.LightOutput, cg.Component)
+LightOnChangeTrigger = ikea_ansluta_ns.class_('LightOnChangeTrigger',
                                               auto.Trigger.template(cg.uint8))
 
 CONFIG_SCHEMA = cv.All(light.BRIGHTNESS_ONLY_LIGHT_SCHEMA.extend({
-    cv.GenerateID(CONF_OUTPUT_ID): cv.declare_id(IkeaAnslutaLight),
+    cv.GenerateID(CONF_OUTPUT_ID): cv.declare_id(LightOutput),
     cv.GenerateID(CONF_IKEA_ANSLUTA_ID): cv.use_id(IkeaAnsluta),
     cv.Required(CONF_ADDRESS): cv.hex_uint16_t,
     cv.Optional(CONF_PAIRING_MODE, default=False): cv.boolean,

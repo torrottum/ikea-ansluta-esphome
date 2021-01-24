@@ -7,7 +7,7 @@
 
 namespace esphome {
 namespace ikea_ansluta {
-enum class IkeaAnslutaCommand : uint8_t {
+enum class Command : uint8_t {
   OFF = 0x01,
   ON_50 = 0x02,
   ON_100 = 0x03,
@@ -16,11 +16,11 @@ enum class IkeaAnslutaCommand : uint8_t {
 
 struct IkeaAnslutaListener {
   uint16_t remote_address;
-  std::function<void(IkeaAnslutaCommand)> on_command;
+  std::function<void(Command)> on_command;
 };
 
-struct IkeaAnslutaCommandState {
-  IkeaAnslutaCommand command;
+struct CommandState {
+  Command command;
   uint16_t times_sent;
 };
 
@@ -31,8 +31,8 @@ class IkeaAnsluta : public Component,
   void setup() override;
   void loop() override;
   void dump_config() override;
-  void queue_command(uint16_t addr, IkeaAnslutaCommand command);
-  void register_listener(uint16_t remote_address, const std::function<void(IkeaAnslutaCommand)> &func);
+  void queue_command(uint16_t addr, Command command);
+  void register_listener(uint16_t remote_address, const std::function<void(Command)> &func);
   void set_send_command_times(uint16_t n_times) { this->send_command_times_ = n_times; }
   void set_sniff_after_commands_sent(uint16_t n) { this->sniff_after_commands_sent_ = n; }
   void add_new_on_remote_click_callback(std::function<void(uint16_t, uint8_t)> &&remote_pressed_callback);
@@ -44,13 +44,13 @@ class IkeaAnsluta : public Component,
   uint8_t read_reg_(uint8_t addr);
   void read_packet_(std::vector<uint8_t> &buffer);
   bool valid_packet_(const std::vector<uint8_t> &packet);
-  bool valid_cmd_(IkeaAnslutaCommand cmd);
+  bool valid_cmd_(Command cmd);
   optional<uint16_t> send_command_times_;
   optional<uint16_t> sniff_after_commands_sent_;
   uint16_t commands_sent_;
   std::vector<IkeaAnslutaListener> listeners_;
-  std::unordered_map<uint16_t, IkeaAnslutaCommandState> commands_to_send_{};
-  void send_command_(uint16_t address, IkeaAnslutaCommand command);
+  std::unordered_map<uint16_t, CommandState> commands_to_send_{};
+  void send_command_(uint16_t address, Command command);
   CallbackManager<void(uint16_t, uint8_t)> on_remote_click_callback_{};
 };
 }  // namespace ikea_ansluta

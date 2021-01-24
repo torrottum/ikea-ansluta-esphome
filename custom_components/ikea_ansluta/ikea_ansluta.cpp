@@ -85,7 +85,7 @@ void IkeaAnsluta::sniff_() {
   this->read_packet_(packet);
   if (this->valid_packet_(packet)) {
     uint16_t address = (packet[2] << 8) + packet[3];
-    IkeaAnslutaCommand command = (IkeaAnslutaCommand) packet[4];
+    Command command = (Command) packet[4];
     ESP_LOGD(TAG, "Sniffed command %#02x from remote %#04x", (uint8_t) command, address);
     this->on_remote_click_callback_.call(address, (uint8_t) command);
     for (auto &listener : this->listeners_)
@@ -96,15 +96,15 @@ void IkeaAnsluta::sniff_() {
 
 bool IkeaAnsluta::valid_packet_(const std::vector<uint8_t> &packet) {
   return packet.size() == 6 && packet.front() == 0x55 && packet.at(1) == 0x01 &&
-         this->valid_cmd_((IkeaAnslutaCommand) packet.at(4)) && packet.back() == 0xAA;
+         this->valid_cmd_((Command) packet.at(4)) && packet.back() == 0xAA;
 }
 
-bool IkeaAnsluta::valid_cmd_(IkeaAnslutaCommand cmd) {
-  return cmd == IkeaAnslutaCommand::OFF || cmd == IkeaAnslutaCommand::ON_50 || cmd == IkeaAnslutaCommand::ON_100 ||
-         cmd == IkeaAnslutaCommand::PAIR;
+bool IkeaAnsluta::valid_cmd_(Command cmd) {
+  return cmd == Command::OFF || cmd == Command::ON_50 || cmd == Command::ON_100 ||
+         cmd == Command::PAIR;
 }
 
-void IkeaAnsluta::register_listener(uint16_t remote_address, const std::function<void(IkeaAnslutaCommand)> &func) {
+void IkeaAnsluta::register_listener(uint16_t remote_address, const std::function<void(Command)> &func) {
   auto listener = IkeaAnslutaListener{
       .remote_address = remote_address,
       .on_command = func,
@@ -163,9 +163,9 @@ uint8_t IkeaAnsluta::read_reg_(uint8_t addr) {
   return y;
 }
 
-void IkeaAnsluta::queue_command(uint16_t address, IkeaAnslutaCommand command) {
+void IkeaAnsluta::queue_command(uint16_t address, Command command) {
   if (!this->commands_to_send_.count(address)) {
-    auto pair = std::make_pair(address, IkeaAnslutaCommandState{
+    auto pair = std::make_pair(address, CommandState{
                                             .command = command,
                                             .times_sent = 0,
                                         });
@@ -180,7 +180,7 @@ void IkeaAnsluta::queue_command(uint16_t address, IkeaAnslutaCommand command) {
   }
 }
 
-void IkeaAnsluta::send_command_(uint16_t address, IkeaAnslutaCommand command) {
+void IkeaAnsluta::send_command_(uint16_t address, Command command) {
   this->send_strobe_(CC2500_SFTX);   // 0x3B
   this->send_strobe_(CC2500_SIDLE);  // 0x36
   this->cs_->digital_write(false);

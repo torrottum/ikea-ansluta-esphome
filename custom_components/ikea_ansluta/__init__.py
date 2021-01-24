@@ -14,7 +14,7 @@ CONF_SEND_COMMAND_TIMES = 'send_command_times'
 CONF_SNIFF_AFTER_COMMANDS_SENT = 'sniff_after_commands_sent'
 CONF_ON_REMOTE_CLICK = 'on_remote_click'
 
-OnRemoteClickTrigger = ikea_ansluta_ns.class_('IkeaAnslutaOnRemoteClickTrigger',
+OnRemoteClickTrigger = ikea_ansluta_ns.class_('OnRemoteClickTrigger',
                                               auto.Trigger.template(cg.uint16, cg.uint8))
 
 CONFIG_SCHEMA = cv.Schema({

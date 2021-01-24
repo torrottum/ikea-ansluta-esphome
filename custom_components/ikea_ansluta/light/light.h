@@ -10,7 +10,7 @@
 namespace esphome {
 namespace ikea_ansluta {
 
-class IkeaAnslutaLight : public Component, public light::LightOutput {
+class Light : public Component, public light::LightOutput {
  public:
   void setup() override;
   void dump_config() override;
@@ -22,7 +22,7 @@ class IkeaAnslutaLight : public Component, public light::LightOutput {
   void set_pairing_mode(bool pairing_mode);
   void set_threshold(float threshold) { this->threshold_ = threshold; };
   void send_pairing_command();
-  void send_command(IkeaAnslutaCommand command);
+  void send_command(Command command);
   void send_command(uint8_t command);
   void add_new_on_change_callback(std::function<void(uint8_t)> &&change_callback);
 
@@ -33,13 +33,13 @@ class IkeaAnslutaLight : public Component, public light::LightOutput {
   bool pairing_mode_{false};
   optional<float> threshold_;
   light::LightState *state_{nullptr};
-  void handle_remote_command_(IkeaAnslutaCommand command);
+  void handle_remote_command_(Command command);
   CallbackManager<void(uint8_t)> on_change_callback_{};
 };
 
-class IkeaAnslutaLightOnChangeTrigger : public Trigger<uint8_t> {
+class LightOnChangeTrigger : public Trigger<uint8_t> {
  public:
-  IkeaAnslutaLightOnChangeTrigger(IkeaAnslutaLight *parent) {
+  LightOnChangeTrigger(Light *parent) {
     parent->add_new_on_change_callback([this](uint8_t command) { this->trigger(command); });
   }
 };
