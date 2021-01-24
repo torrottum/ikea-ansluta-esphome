@@ -53,13 +53,5 @@ class IkeaAnsluta : public Component,
   void send_command_(uint16_t address, IkeaAnslutaCommand command);
   CallbackManager<void(uint16_t, uint8_t)> on_remote_click_callback_{};
 };
-
-class IkeaAnslutaOnRemoteClickTrigger : public Trigger<uint16_t, uint8_t> {
- public:
-  IkeaAnslutaOnRemoteClickTrigger(IkeaAnsluta *parent) {
-    parent->add_new_on_remote_click_callback(
-        [this](uint16_t address, uint8_t command) { this->trigger(address, command); });
-  }
-};
 }  // namespace ikea_ansluta
 }  // namespace esphome
