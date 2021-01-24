@@ -92,7 +92,7 @@ void IkeaAnslutaLight::send_pairing_command() {
   this->send_command(IkeaAnslutaCommand::PAIR);
 }
 
-void IkeaAnslutaLight::send_command(float command) { this->send_command((IkeaAnslutaCommand)((uint8_t) command)); }
+void IkeaAnslutaLight::send_command(uint8_t command) { this->send_command((IkeaAnslutaCommand)((uint8_t) command)); }
 
 void IkeaAnslutaLight::send_command(IkeaAnslutaCommand command) {
   this->parent_->queue_command(this->address_, command);

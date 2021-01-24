@@ -23,7 +23,7 @@ class IkeaAnslutaLight : public Component, public light::LightOutput {
   void set_threshold(float threshold) { this->threshold_ = threshold; };
   void send_pairing_command();
   void send_command(IkeaAnslutaCommand command);
-  void send_command(float command);
+  void send_command(uint8_t command);
   void add_new_on_change_callback(std::function<void(uint8_t)> &&change_callback);
 
  protected:
