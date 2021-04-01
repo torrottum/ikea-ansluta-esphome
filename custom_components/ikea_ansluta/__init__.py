@@ -1,8 +1,9 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 import esphome.automation as auto
-from esphome.const import CONF_ID, CONF_TRIGGER_ID
+from esphome.const import CONF_ID, CONF_TRIGGER_ID, CONF_COMMAND
 from esphome.components import spi
+from esphome.components.light.types import LightState
 
 DEPENDENCIES = ['spi']
 
@@ -16,6 +17,10 @@ CONF_ON_REMOTE_CLICK = 'on_remote_click'
 
 OnRemoteClickTrigger = ikea_ansluta_ns.class_('OnRemoteClickTrigger',
                                               auto.Trigger.template(cg.uint16, cg.uint8))
+# Actions
+EnablePairingModeAction = ikea_ansluta_ns.class_('EnablePairingModeAction', auto.Action)
+DisableParingModeAction = ikea_ansluta_ns.class_('DisablePairingModeAction', auto.Action)
+SendCommandAction = ikea_ansluta_ns.class_('SendCommandAction', auto.Action)
 
 CONFIG_SCHEMA = cv.Schema({
     cv.GenerateID(): cv.declare_id(IkeaAnsluta),
@@ -26,6 +31,32 @@ CONFIG_SCHEMA = cv.Schema({
     }),
 }).extend(cv.COMPONENT_SCHEMA).extend(spi.spi_device_schema())
 
+@auto.register_action('ikea_ansluta.enable_pairing_mode', EnablePairingModeAction, auto.maybe_simple_id({
+    cv.Required(CONF_ID): cv.use_id(LightState),
+}))
+def enable_pairing_mode_to_code(config, action_id, template_arg, args):
+    paren = yield cg.get_variable(config[CONF_ID])
+    var = cg.new_Pvariable(action_id, template_arg, paren)
+    yield var
+
+@auto.register_action('ikea_ansluta.disable_pairing_mode', DisableParingModeAction, auto.maybe_simple_id({
+    cv.Required(CONF_ID): cv.use_id(LightState),
+}))
+def disable_pairing_mode_to_code(config, action_id, template_arg, args):
+    paren = yield cg.get_variable(config[CONF_ID])
+    var = cg.new_Pvariable(action_id, template_arg, paren)
+    yield var
+
+@auto.register_action('ikea_ansluta.send_command', SendCommandAction, auto.maybe_simple_id({
+    cv.Required(CONF_ID): cv.use_id(LightState),
+    cv.Required(CONF_COMMAND): cv.templatable(cv.uint8_t),
+}))
+def send_command_to_code(config, action_id, template_arg, args):
+    paren = yield cg.get_variable(config[CONF_ID])
+    var = cg.new_Pvariable(action_id, template_arg, paren)
+    templ = yield cg.templatable(config[CONF_COMMAND], args, cg.uint8)
+    cg.add(var.set_command(templ))
+    yield var
 
 def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
@@ -34,9 +65,7 @@ def to_code(config):
     if CONF_SNIFF_AFTER_COMMANDS_SENT in config:
         cg.add(var.set_sniff_after_commands_sent(config[CONF_SNIFF_AFTER_COMMANDS_SENT]))
 
-    print(config)
     for conf in config.get(CONF_ON_REMOTE_CLICK, []):
-        print(conf)
         trigger = cg.new_Pvariable(conf[CONF_TRIGGER_ID], var)
         yield auto.build_automation(trigger, [(cg.uint16, 'address'), (cg.uint8, 'command')], conf)
     yield cg.register_component(var, config)
