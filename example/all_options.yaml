@@ -1,0 +1,62 @@
+esphome:
+  name: ikea_ansluta
+  platform: ESP8266
+  board: d1_mini
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  ap:
+    ssid: "Ikea Ansluta Fallback Hotspot"
+    password: !secret ap_password
+
+captive_portal:
+
+logger:
+
+api:
+
+ota:
+
+spi:
+  clk_pin: GPIO14
+  miso_pin: GPIO12
+  mosi_pin: GPIO13
+
+ikea_ansluta:
+  cs_pin: GPIO15
+  send_command_times: 75 # How many times a command should be sent to a light
+  sniff_after_command_sent_x_times: 5 # When sending commands: After sending x commands, sniff for remote clicks
+  on_remote_click:
+    address: 0xdead # Only trigger when remote has this address, defaults to none, i.e all remotes
+    debounce: 200 # do not trigger unless last triggered time as this many ms ago
+    then:
+      - light.toggle: my_light
+      - logger.log:
+          format: "Remote %#04x sent command %#02x"
+          args: ['address', 'command']
+
+# Using a switch to enable/disable pairing mode
+switch:
+  - platform: template
+    name: "Ikea Ansluta Pairing Mode"
+    optimistic: true
+    turn_on_action:
+      - ikea_ansluta.enable_pairing_mode: my_light
+    turn_off_action:
+      - ikea_ansluta.disable_pairing_mode: my_light
+
+light:
+  - platform: ikea_ansluta
+    id: my_light
+    name: 'IKEA Ansluta'
+    address: 0xbeef # Address for the light. Required
+    pairing_mode: false # Enable pairing mode (tip: it's also possible to use actions instead)
+    threshold: 0.5 # Light is turned to 100% if brightness is above this number, otherwise 50%
+    # Triggered when a command is sent to the light
+    on_change:
+      then:
+        - logger.log:
+            format: "Light changed state to %#02x"
+            args: ['state']
