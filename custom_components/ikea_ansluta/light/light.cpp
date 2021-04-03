@@ -6,15 +6,20 @@ namespace ikea_ansluta {
 static const char *TAG = "ikea_ansluta.light";
 
 void Light::setup() {
-  this->parent_->register_listener(this->address_, [this](Command command) {
-    ESP_LOGV(TAG, "Received command %#04x from radio", (uint8_t) command);
-    this->handle_remote_command_(command);
-  });
+  this->parent_->add_on_remote_click_callback(
+      [this](uint16_t address, uint8_t command) {
+        // Remote and light and has same addr, i.e not paired directly with the light
+        if (this->address_ == address) {
+          this->handle_remote_command_((Command) command);
+        }
+      });
 }
 
 void Light::dump_config() {
   ESP_LOGCONFIG(TAG, "  Address: %#04x", this->address_);
-  ESP_LOGCONFIG(TAG, "  Pairing enabled: %s", ONOFF(pairing_mode_));
+  ESP_LOGCONFIG(TAG, "  Pairing mode enabled: %s", ONOFF(this->pairing_mode_enabled_));
+  if (this->threshold_.has_value())
+    ESP_LOGCONFIG(TAG, "  Threshold: %.2f", this->threshold_.value());
 }
 
 void Light::setup_state(light::LightState *state) {
@@ -30,15 +35,17 @@ light::LightTraits Light::get_traits() {
 }
 
 void Light::handle_remote_command_(Command command) {
+  ESP_LOGW(TAG, "Your remote and light has the same address. "
+                "It's recommended to pair with the lights directly for the best experience. "
+                "Read the wiki for more info");
+
   // If we get commands from the remote, we don't want to send commands
   this->ignore_state_ = true;
-
-  this->on_change_callback_.call((uint8_t) command);
 
   auto call = this->state_->make_call();
   switch (command) {
     case Command::ON_50:
-      call.set_brightness(0.5f);
+      call.set_brightness(this->threshold_.value_or(0.5));
       call.set_state(true);
       break;
     case Command::ON_100:
@@ -53,6 +60,9 @@ void Light::handle_remote_command_(Command command) {
       break;
   }
   call.perform();
+
+  if (command != Command::PAIR)
+    on_change_callback_.call((uint8_t) command);
 }
 
 void Light::write_state(light::LightState *state) {
@@ -73,14 +83,13 @@ void Light::write_state(light::LightState *state) {
   } else {
     command = Command::OFF;
   }
+  on_change_callback_.call((uint8_t) command);
   this->parent_->queue_command(this->address_, command);
-
-  this->on_change_callback_.call((uint8_t) command);
 }
 
-void Light::set_pairing_mode(bool pairing_mode) {
-  ESP_LOGI(TAG, "Pairing mode %s for address %#04x", ONOFF(pairing_mode), this->address_);
-  if (!pairing_mode) {
+void Light::set_pairing_mode(bool pairing_enabled) {
+  ESP_LOGI(TAG, "Pairing mode %s for address %#04x: ", ONOFF(pairing_enabled), this->address_);
+  if (!pairing_enabled) {
     this->cancel_interval("pairing_mode_");
     return;
   }
@@ -89,16 +98,10 @@ void Light::set_pairing_mode(bool pairing_mode) {
 
 void Light::send_pairing_command() {
   ESP_LOGI(TAG, "Sending pairing command with address %#04x", this->address_);
-  this->send_command(Command::PAIR);
+  this->parent_->queue_command(this->address_, Command::PAIR);
 }
 
-void Light::send_command(uint8_t command) { this->send_command((Command)((uint8_t) command)); }
-
-void Light::send_command(Command command) {
-  this->parent_->queue_command(this->address_, command);
-}
-
-void Light::add_new_on_change_callback(std::function<void(uint8_t)> &&change_callback) {
+void Light::add_on_change_callback(std::function<void(uint8_t)> &&change_callback) {
   this->on_change_callback_.add(std::move(change_callback));
 }
 }  // namespace ikea_ansluta

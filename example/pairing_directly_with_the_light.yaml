@@ -27,9 +27,9 @@ spi:
 ikea_ansluta:
   cs_pin: GPIO15
 
+
+
 light:
   - platform: ikea_ansluta
     name: 'IKEA Ansluta'
-    remote_address: 0x35c0
     address: 0xdead
-    pairing_enabled: true
