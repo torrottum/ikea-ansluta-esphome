@@ -26,10 +26,23 @@ spi:
 
 ikea_ansluta:
   cs_pin: GPIO15
+  on_remote_click:
+    address: 0xdead
+    then:
+      - light.toggle: my_light
 
-
+# Using a switch to enable/disable pairing mode
+switch:
+  - platform: template
+    name: "Ikea Ansluta Pairing Mode"
+    optimistic: true
+    turn_on_action:
+      - ikea_ansluta.enable_pairing_mode: my_light
+    turn_off_action:
+      - ikea_ansluta.disable_pairing_mode: my_light
 
 light:
   - platform: ikea_ansluta
+    id: my_light
     name: 'IKEA Ansluta'
-    address: 0xdead
+    address: 0xbeef

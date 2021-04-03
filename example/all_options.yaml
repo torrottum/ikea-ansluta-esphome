@@ -1,5 +1,5 @@
 esphome:
-  name: ikea_ansluta
+  name: ikea_ansluta_example
   platform: ESP8266
   board: d1_mini
 

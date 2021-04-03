@@ -26,13 +26,16 @@ spi:
 
 ikea_ansluta:
   cs_pin: GPIO15
+  on_remote_click:
+    address: 0xdead
+    # If the remote has the same address as the light
+    # Then there is no need to turn the light on/off
+    # I wouldn't recommend this though, since (at least for me)
+    # the performance/stability is actually worse using the remote.
+    then:
+      - logger.log: "Remote clicked!"
 
 light:
   - platform: ikea_ansluta
     name: 'IKEA Ansluta'
-    remote_address: 0x35c0
-    # Note: I have no idea how well this works with multiple remotes.
-    # I only have one remote, so I have no way of testing it
-  - platform: ikea_ansluta
-    name: 'IKEA Ansluta 2'
-    remote_address: 0xfefe
+    address: 0xdead # Same adress as remote
