@@ -1,4 +1,7 @@
 # Changelog
+## 1.1.1
+- Add support for color modes, needed for esphome 2021.8
+
 ## 1.1.0
 - Added support for pairing direclty with the lights and using the remote as a toggle switch
 
