@@ -40,7 +40,7 @@ namespace esphome
     light::LightTraits IkeaAnslutaLight::get_traits()
     {
       auto traits = light::LightTraits();
-      traits.set_supports_brightness(true);
+      traits.set_supported_color_modes({light::ColorMode::BRIGHTNESS});
       return traits;
     }
 
