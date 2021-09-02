@@ -19,6 +19,9 @@ api:
 
 ota:
 
+external_components:
+  - source: ../components
+
 spi:
   clk_pin: GPIO14
   miso_pin: GPIO12
