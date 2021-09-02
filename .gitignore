@@ -8,7 +8,7 @@ secrets.yaml
 !example/secrets.yaml
 test.yaml
 test/
-example/ikea_ansluta_example/
+example/ikea-ansluta-example/
 __pycache__
 esphome/
 CMake*.txt
